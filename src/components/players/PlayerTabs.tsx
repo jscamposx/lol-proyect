@@ -16,8 +16,8 @@ export const PlayerTabs = ({
   profiles?: Record<string, RiotProfileSummary>;
 }) => {
   return (
-    <div className="max-w-full overflow-x-auto overscroll-x-contain thin-scrollbar p-1 md:w-auto md:overflow-visible md:p-0">
-      <div className="flex min-w-max gap-2 md:min-w-0 md:flex-col md:items-center md:gap-4">
+    <div className="max-w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-px-4 thin-scrollbar p-1 md:w-auto md:snap-none md:overflow-visible md:p-0">
+      <div className="flex min-w-max gap-2 pr-3 md:min-w-0 md:flex-col md:items-center md:gap-4 md:pr-0">
         {users.map((u) => {
           const isActive = activeId === u.id;
           const avatarUrl = getProfileIconUrl(profiles?.[u.id]?.profileIconId) || u.avatar;
@@ -27,7 +27,7 @@ export const PlayerTabs = ({
               key={u.id}
               type="button"
               onClick={() => onChange(u.id)}
-              className={`group relative flex items-center gap-2 rounded-full border border-white/10 bg-black/20 p-1 pr-3 font-bold whitespace-nowrap transition-transform duration-200 ease-out hover:-translate-y-0.5 md:h-14 md:w-14 md:justify-center md:gap-0 md:border-transparent md:bg-transparent md:p-0 md:pr-0 md:hover:translate-x-1 md:hover:translate-y-0 ${
+              className={`group relative flex snap-start items-center gap-2 rounded-full border border-white/10 bg-black/20 p-1 pr-3 font-bold whitespace-nowrap transition-transform duration-200 ease-out hover:-translate-y-0.5 md:h-14 md:w-14 md:justify-center md:gap-0 md:border-transparent md:bg-transparent md:p-0 md:pr-0 md:hover:translate-x-1 md:hover:translate-y-0 ${
                 isActive
                   ? "text-white"
                   : "text-slate-400 hover:text-white"
