@@ -1,12 +1,16 @@
 # React + TypeScript + Vite
 
-## Riot API
+## Riot API y Configuración de Vercel
 
-La app llama a Riot a traves del proxy local `/api/riot`; la key no se lee desde el frontend. Define la variable en `.env` como:
+La app llama a Riot a traves del proxy `/api/riot`; la key no se lee desde el frontend. Para el entorno de desarrollo define la variable en `.env` como:
 
 ```env
 RIOT_API_KEY=RGAPI_xxx
 ```
+
+**Despliegue en Vercel:**
+Debes configurar la variable de entorno `RIOT_API_KEY` en el dashboard de Vercel:
+Ve a **Project Settings → Environment Variables**, añade la variable y, por último, realiza un **redeploy** para que Vercel empiece a utilizar la API Key en el entorno de producción para el endpoint serverless.
 
 `VITE_RIOT_API_KEY` se mantiene solo como fallback server-side para migraciones locales, pero Vite esta configurado con `envPrefix: "APP_"` para que esa variable no se exponga al bundle del cliente.
 
