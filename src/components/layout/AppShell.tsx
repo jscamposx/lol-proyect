@@ -3,6 +3,11 @@ import { tabs } from "./navTabs";
 
 export default function AppShell({ children, currentTab, setTab }: { children: ReactNode, currentTab: string, setTab: (tab: string) => void }) {
   const activeTab = tabs.find((tab) => tab.id === currentTab) ?? tabs[0];
+  const mobileLabels: Record<string, string> = {
+    participants: "Equipo",
+    matches: "Juegos",
+    ranking: "Rank",
+  };
 
   return (
     <div className="app-root">
@@ -58,13 +63,14 @@ export default function AppShell({ children, currentTab, setTab }: { children: R
         <div className="glass-nav mx-auto grid max-w-md grid-cols-5 gap-1 p-1.5">
           {tabs.map(({ id, label, Icon }) => {
             const isActive = currentTab === id;
+            const navLabel = mobileLabels[id] ?? label;
 
             return (
               <button
                 key={id}
                 type="button"
                 onClick={() => setTab(id)}
-                className={`flex min-h-[3.25rem] min-w-0 flex-col items-center justify-center gap-1 rounded-lg px-1 py-1.5 text-[10px] font-black uppercase leading-none transition ${
+                className={`flex min-h-[3.25rem] min-w-0 flex-col items-center justify-center gap-1 rounded-lg px-0.5 py-1.5 text-[9px] font-bold leading-tight transition ${
                   isActive
                     ? "border border-violet-300/25 bg-violet-500/20 text-white shadow-[0_10px_26px_-20px_rgba(167,139,250,0.9)]"
                     : "border border-transparent text-slate-400 hover:bg-white/[0.06] hover:text-white"
@@ -72,7 +78,7 @@ export default function AppShell({ children, currentTab, setTab }: { children: R
                 aria-current={isActive ? "page" : undefined}
               >
                 <Icon className="h-5 w-5 shrink-0" strokeWidth={2.3} />
-                <span className="w-full truncate">{label}</span>
+                <span className="w-full truncate text-center">{navLabel}</span>
               </button>
             );
           })}

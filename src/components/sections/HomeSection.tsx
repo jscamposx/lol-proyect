@@ -7,7 +7,7 @@ const heroImage = "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/M
 export default function HomeSection({ setTab }: { setTab: (t: string) => void }) {
   return (
     <div className="flex flex-col gap-5 sm:gap-8 animate-in slide-in-from-bottom-4 duration-700">
-      <section className="hero-arena relative min-h-[calc(100dvh-10rem)] sm:min-h-[620px] md:min-h-[68vh] overflow-hidden flex items-end">
+      <section className="hero-arena relative min-h-[calc(100svh-13rem)] sm:min-h-[620px] md:min-h-[68vh] overflow-hidden flex items-end">
         <img
           src={heroImage}
           alt=""
