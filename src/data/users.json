@@ -1,0 +1,29 @@
+[
+  {
+    "id": "camposx",
+    "displayName": "camposx",
+    "gameName": "camposx",
+    "tagLine": "J23",
+    "region": "la1",
+    "routing": "americas",
+    "avatar": "/avatars/camposx.png"
+  },
+  {
+    "id": "hhh-maximal27",
+    "displayName": "HHH Maximal27",
+    "gameName": "HHH Maximal27",
+    "tagLine": "LAN",
+    "region": "la1",
+    "routing": "americas",
+    "avatar": "/avatars/hhh-maximal27.png"
+  },
+  {
+    "id": "assessinrd",
+    "displayName": "AssessinRD",
+    "gameName": "AssessinRD",
+    "tagLine": "LAN",
+    "region": "la1",
+    "routing": "americas",
+    "avatar": "/avatars/assessinrd.png"
+  }
+]
