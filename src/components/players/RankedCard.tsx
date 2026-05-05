@@ -10,8 +10,8 @@ type RankedCardProps = {
 export const RankedCard = ({ ranked, queueLabel }: RankedCardProps) => {
   if (!ranked) {
     return (
-      <Card className="flex flex-col items-center justify-center p-8 h-full text-center">
-        <div className="w-24 h-24 rounded-lg bg-black/35 flex items-center justify-center mb-4 border border-white/10 shadow-inner">
+      <Card className="flex h-full flex-col items-center justify-center p-5 text-center sm:p-8">
+        <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-lg border border-white/10 bg-black/35 shadow-inner sm:h-24 sm:w-24">
           <span className="text-slate-500 text-2xl font-bold">?</span>
         </div>
         <h3 className="text-xs font-bold text-slate-500 mb-2 uppercase">{queueLabel}</h3>
@@ -24,11 +24,11 @@ export const RankedCard = ({ ranked, queueLabel }: RankedCardProps) => {
   const displayRank = `${getTierDisplayName(ranked.tier)}${isApexTier(ranked.tier) ? "" : ` ${ranked.rank}`}`;
 
   return (
-    <Card className="p-6 flex flex-col items-center h-full relative overflow-hidden group">
+    <Card className="group relative flex h-full flex-col items-center overflow-hidden p-4 sm:p-6">
       <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-violet-300/70 to-cyan-200/70"></div>
-      <h3 className="text-xs font-bold text-slate-500 mb-4 z-10 uppercase">{ranked.queue}</h3>
+      <h3 className="z-10 mb-3 text-xs font-bold uppercase text-slate-500 sm:mb-4">{ranked.queue}</h3>
 
-      <div className="w-44 h-44 mb-4 z-10 overflow-visible">
+      <div className="z-10 mb-3 h-32 w-32 overflow-visible sm:mb-4 sm:h-44 sm:w-44">
         <img
           src={tierIconUrl}
           alt={ranked.tier}
@@ -41,7 +41,7 @@ export const RankedCard = ({ ranked, queueLabel }: RankedCardProps) => {
       </div>
 
       <div className="text-center z-10 w-full">
-        <h2 className="text-2xl font-black text-white uppercase mb-1">{displayRank}</h2>
+        <h2 className="mb-1 text-xl font-black uppercase text-white sm:text-2xl">{displayRank}</h2>
         <div className="flex items-center justify-center gap-2 mb-4">
           <span className="text-violet-200 font-bold">{ranked.lp} LP</span>
         </div>

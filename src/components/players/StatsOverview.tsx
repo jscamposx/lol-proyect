@@ -42,7 +42,7 @@ export const StatsOverview = ({ stats, championPool }: StatsOverviewProps) => {
       <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-emerald-300/80 via-violet-300/75 to-cyan-200/80"></div>
 
       <div className="grid lg:grid-cols-[21rem_minmax(0,1fr)]">
-        <div className="relative overflow-hidden border-b border-white/10 p-5 sm:p-6 lg:border-b-0 lg:border-r lg:p-7">
+        <div className="relative overflow-hidden border-b border-white/10 p-4 sm:p-6 lg:border-b-0 lg:border-r lg:p-7">
           <div className="absolute inset-0 bg-linear-to-br from-emerald-400/[0.08] via-transparent to-cyan-300/[0.07]"></div>
           <div className="relative">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -55,8 +55,8 @@ export const StatsOverview = ({ stats, championPool }: StatsOverviewProps) => {
               </Badge>
             </div>
 
-            <div className="mt-6 flex flex-col items-center gap-5 sm:flex-row lg:flex-col">
-              <div className="relative h-38 w-38 shrink-0 rounded-full p-1.5 shadow-[0_0_42px_rgba(34,211,238,0.12)]">
+            <div className="mt-5 flex flex-col items-center gap-5 sm:mt-6 sm:flex-row lg:flex-col">
+              <div className="relative h-32 w-32 shrink-0 rounded-full p-1.5 shadow-[0_0_42px_rgba(34,211,238,0.12)] sm:h-38 sm:w-38">
                 <div
                   className="absolute inset-0 rounded-full"
                   style={{
@@ -65,7 +65,7 @@ export const StatsOverview = ({ stats, championPool }: StatsOverviewProps) => {
                 ></div>
                 <div className="absolute inset-2 rounded-full border border-white/10 bg-[#0a0612]"></div>
                 <div className="absolute inset-4 flex flex-col items-center justify-center rounded-full border border-white/10 bg-white/[0.035]">
-                  <div className={`text-4xl font-black ${getWinrateTone(stats.winrate)}`}>{stats.winrate}%</div>
+                  <div className={`text-3xl font-black sm:text-4xl ${getWinrateTone(stats.winrate)}`}>{stats.winrate}%</div>
                   <div className="mt-1 text-[10px] font-bold uppercase text-slate-500">Winrate</div>
                 </div>
               </div>
@@ -92,15 +92,15 @@ export const StatsOverview = ({ stats, championPool }: StatsOverviewProps) => {
           </div>
         </div>
 
-        <div className="p-5 sm:p-6 lg:p-7">
-          <div className="grid grid-cols-2 gap-x-5 gap-y-6 xl:grid-cols-4">
+        <div className="p-4 sm:p-6 lg:p-7">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:gap-x-5 sm:gap-y-6 xl:grid-cols-4">
             {statItems.map(({ label, value, detail, Icon, tone }) => (
               <div key={label} className="min-w-0">
                 <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.045] text-slate-300">
                   <Icon className="h-4 w-4" />
                 </div>
-                <div className={`truncate text-2xl font-black sm:text-3xl ${tone}`}>{value}</div>
-                <div className="mt-1 flex items-center gap-2 text-[11px] uppercase">
+                <div className={`truncate text-xl font-black sm:text-3xl ${tone}`}>{value}</div>
+                <div className="mt-1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] uppercase sm:text-[11px]">
                   <span className="font-bold text-slate-500">{label}</span>
                   <span className="text-slate-600">{detail}</span>
                 </div>
@@ -124,14 +124,14 @@ type ChampionPoolPanelProps = {
 const ChampionPoolPanel = ({
   topPool,
 }: ChampionPoolPanelProps) => (
-  <section className="mt-7 border-t border-white/10 pt-5">
+  <section className="mt-6 border-t border-white/10 pt-5 sm:mt-7">
     <div className="mb-4 flex items-center justify-between gap-4">
       <div>
         <Badge variant="purple">
           <Layers3 className="h-3.5 w-3.5" />
           Champion pool
         </Badge>
-        <h3 className="mt-3 text-2xl font-black text-white">Picks</h3>
+        <h3 className="mt-3 text-xl font-black text-white sm:text-2xl">Picks</h3>
       </div>
     </div>
 

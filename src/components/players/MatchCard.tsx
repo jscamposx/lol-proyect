@@ -105,11 +105,11 @@ export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds 
       <div className={`absolute inset-y-0 left-0 w-1 ${match.isRemake ? "bg-slate-400/30" : isWin ? "bg-emerald-300/70" : "bg-rose-300/70"}`}></div>
 
       <div className="grid grid-cols-1 gap-3 sm:gap-4 xl:grid-cols-[9rem_18rem_10rem_12rem_3rem_minmax(13rem,1fr)] xl:items-center">
-        <div className="flex xl:flex-col items-center xl:items-start justify-between xl:justify-start gap-2 text-sm">
-          <div>
-            <h4 className="font-black text-slate-200">{match.queue}</h4>
+        <div className="flex min-w-0 items-center justify-between gap-2 text-sm xl:flex-col xl:items-start xl:justify-start">
+          <div className="min-w-0">
+            <h4 className="truncate font-black text-slate-200">{match.queue}</h4>
           </div>
-          <div className="flex xl:flex-col items-end xl:items-start gap-2 xl:gap-1">
+          <div className="flex shrink-0 items-end gap-2 xl:flex-col xl:items-start xl:gap-1">
             <Badge variant={match.isRemake ? "gray" : isWin ? "green" : "red"}>{resultLabel}</Badge>
             <span className="text-slate-500 text-[11px]">{durationLabel}</span>
           </div>
@@ -152,7 +152,7 @@ export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds 
           <Badge variant="cyan">CS {match.csTotal} ({match.csPerMin}/m)</Badge>
         </div>
 
-        <div className="grid grid-cols-6 gap-1.5 w-full max-w-[20rem] xl:max-w-none">
+        <div className="grid w-full max-w-[20rem] grid-cols-6 gap-1.5 xl:max-w-none">
           {match.items.slice(0, 6).map((itemId, index) => {
             const itemName = itemById[itemId]?.name || (itemId > 0 ? `Item ${itemId}` : "Sin item");
             return (
@@ -183,7 +183,7 @@ export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds 
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 overflow-hidden rounded-lg border border-white/10 bg-black/20 p-2 text-[10px] sm:gap-3 xl:border-0 xl:bg-transparent xl:p-0">
+        <div className="grid grid-cols-1 gap-2 overflow-hidden rounded-lg border border-white/10 bg-black/20 p-2 text-[10px] sm:grid-cols-2 sm:gap-3 xl:border-0 xl:bg-transparent xl:p-0">
           <div className="flex flex-col gap-1 min-w-0">
             {match.allyTeam.map((participant) => (
               <div key={`${participant.puuid}-ally`} className="min-w-0">
