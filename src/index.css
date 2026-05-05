@@ -16,6 +16,10 @@ body,
 	width: 100%;
 }
 
+html {
+	scroll-padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+}
+
 body {
 	margin: 0;
 	font-family: "Sora", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
@@ -131,12 +135,20 @@ img {
 }
 
 .mobile-safe-bottom {
-	padding-bottom: 3rem;
+	padding-bottom: calc(7.25rem + env(safe-area-inset-bottom));
+}
+
+.mobile-nav-safe {
+	padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
 }
 
 @media (min-width: 768px) {
 	.mobile-safe-bottom {
 		padding-bottom: 3rem;
+	}
+
+	html {
+		scroll-padding-bottom: 3rem;
 	}
 }
 

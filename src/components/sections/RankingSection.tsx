@@ -71,8 +71,8 @@ const getWinrateTone = (winrate: string) => {
   return "text-rose-300";
 };
 
-const RankEmblem = ({ tier }: { tier: RankingRow["tier"] }) => (
-  <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-visible">
+const RankEmblem = ({ tier, compact = false }: { tier: RankingRow["tier"]; compact?: boolean }) => (
+  <div className={`flex shrink-0 items-center justify-center overflow-visible ${compact ? "h-16 w-16" : "h-24 w-24"}`}>
     <img
       src={getTierIconUrl(tier)}
       alt={`Emblema ${getTierDisplayName(tier)}`}
@@ -85,10 +85,81 @@ const RankEmblem = ({ tier }: { tier: RankingRow["tier"] }) => (
   </div>
 );
 
+const MobileMetric = ({ label, value, tone = "text-slate-100" }: { label: string; value: string; tone?: string }) => (
+  <div className="min-w-0 rounded-lg border border-white/10 bg-white/[0.045] px-3 py-2.5">
+    <div className="text-[10px] font-bold uppercase text-slate-500">{label}</div>
+    <div className={`mt-1 truncate text-sm font-black ${tone}`}>{value}</div>
+  </div>
+);
+
 export default function RankingSection() {
   return (
     <div className="animate-in slide-in-from-bottom-4 duration-500">
-      <Card className="overflow-hidden">
+      <div className="flex flex-col gap-3 lg:hidden">
+        {rankingRows.map((player) => {
+          const isLeader = player.rank === 1;
+
+          return (
+            <Card
+              key={player.summoner}
+              className={`relative overflow-hidden p-4 ${
+                isLeader ? "border-amber-200/20 bg-amber-300/[0.045]" : ""
+              }`}
+            >
+              <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-violet-300/70 via-cyan-200/65 to-amber-200/70"></div>
+
+              <div className="flex min-w-0 items-start gap-3">
+                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border font-black ${
+                  isLeader
+                    ? "border-amber-200/25 bg-amber-300/15 text-amber-100"
+                    : "border-white/10 bg-white/[0.06] text-slate-300"
+                }`}>
+                  {isLeader ? <Medal className="h-5 w-5" /> : player.rank}
+                </div>
+
+                <img
+                  src={fallbackAvatar}
+                  className={`h-12 w-12 shrink-0 rounded-lg border object-cover shadow-md ${
+                    isLeader ? "border-amber-300/60" : "border-white/10"
+                  }`}
+                  alt={`Avatar de ${player.summoner}`}
+                />
+
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-base font-black text-white">{player.summoner}</div>
+                  <div className="text-[10px] font-bold uppercase text-slate-500">
+                    {player.region} / {player.routing}
+                  </div>
+                </div>
+
+                <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-emerald-300/20 bg-emerald-300/10 px-2 py-1 text-[10px] font-black uppercase text-emerald-300">
+                  <CircleCheck className="h-3.5 w-3.5" />
+                  Listo
+                </span>
+              </div>
+
+              <div className="mt-4 flex items-center gap-3 rounded-lg border border-white/10 bg-black/20 p-3">
+                <RankEmblem tier={player.tier} compact />
+                <div className="min-w-0">
+                  <div className="truncate text-base font-black text-violet-100">{player.elo}</div>
+                  <div className="mt-1 text-[10px] font-bold uppercase text-slate-500">{player.absoluteLp}</div>
+                </div>
+              </div>
+
+              <div className="mt-3 grid grid-cols-2 gap-2 min-[420px]:grid-cols-3">
+                <MobileMetric label="Subida" value={player.climb} />
+                <MobileMetric label="Partidas" value={player.games} />
+                <MobileMetric label="Winrate" value={player.winrate} tone={getWinrateTone(player.winrate)} />
+                <MobileMetric label="KDA" value={player.kda} />
+                <MobileMetric label="CS/M" value={player.csPerMinute} tone="text-cyan-100" />
+                <MobileMetric label="Rank" value={`#${player.rank}`} tone={isLeader ? "text-amber-100" : "text-slate-100"} />
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+
+      <Card className="hidden overflow-hidden lg:block">
         <div className="overflow-x-auto thin-scrollbar">
           <table className="w-full min-w-[1050px] border-collapse text-left">
             <thead>

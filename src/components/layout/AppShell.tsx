@@ -53,6 +53,31 @@ export default function AppShell({ children, currentTab, setTab }: { children: R
       <main className="relative max-w-7xl mx-auto px-3 sm:px-4 md:px-8 pt-4 sm:pt-6 md:pt-8 mobile-safe-bottom">
         {children}
       </main>
+
+      <nav className="fixed inset-x-0 bottom-0 z-50 px-3 pt-2 md:hidden mobile-nav-safe" aria-label="Navegación principal">
+        <div className="glass-nav mx-auto grid max-w-md grid-cols-5 gap-1 p-1.5">
+          {tabs.map(({ id, label, Icon }) => {
+            const isActive = currentTab === id;
+
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setTab(id)}
+                className={`flex min-h-[3.25rem] min-w-0 flex-col items-center justify-center gap-1 rounded-lg px-1 py-1.5 text-[10px] font-black uppercase leading-none transition ${
+                  isActive
+                    ? "border border-violet-300/25 bg-violet-500/20 text-white shadow-[0_10px_26px_-20px_rgba(167,139,250,0.9)]"
+                    : "border border-transparent text-slate-400 hover:bg-white/[0.06] hover:text-white"
+                }`}
+                aria-current={isActive ? "page" : undefined}
+              >
+                <Icon className="h-5 w-5 shrink-0" strokeWidth={2.3} />
+                <span className="w-full truncate">{label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }

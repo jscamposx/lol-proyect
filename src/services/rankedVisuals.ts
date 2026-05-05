@@ -1,5 +1,5 @@
 const TIER_ICON_BASE_URL =
-  "https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-emblem";
+  "https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/ranked-mini-crests";
 
 export const TIER_ICON_FALLBACK_SRC =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
@@ -26,7 +26,7 @@ export const getTierDisplayName = (tier?: string | null) => {
 
 export const getTierIconUrl = (tier?: string | null) => {
   const normalizedTier = tier?.trim().toLowerCase();
-  return normalizedTier ? `${TIER_ICON_BASE_URL}/emblem-${normalizedTier}.png` : "";
+  return normalizedTier ? `${TIER_ICON_BASE_URL}/${normalizedTier}.svg` : "";
 };
 
 export const isApexTier = (tier?: string | null) => Boolean(tier && apexTiers.has(tier));
