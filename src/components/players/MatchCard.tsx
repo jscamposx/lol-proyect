@@ -68,6 +68,7 @@ export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds 
     const displayName = participant.riotIdGameName && participant.riotIdTagline
       ? `${participant.riotIdGameName}#${participant.riotIdTagline}`
       : participant.summonerName;
+    const compactName = participant.riotIdGameName || participant.summonerName || displayName;
     const opgg = getOpgProfileUrl(region, participant.riotIdGameName, participant.riotIdTagline);
     const key = normalizeRiotId(displayName);
     const colorClass = key === currentKey
@@ -80,8 +81,9 @@ export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds 
 
     const content = (
       <>
-        <img src={getChampionIconUrl(participant.championName)} className="w-4 h-4 rounded-sm shrink-0 object-cover" alt="" />
-        <span className="truncate">{displayName}</span>
+        <img src={getChampionIconUrl(participant.championName)} className="h-3.5 w-3.5 rounded-sm object-cover shrink-0 min-[380px]:h-4 min-[380px]:w-4" alt="" />
+        <span className="min-w-0 flex-1 truncate sm:hidden">{compactName}</span>
+        <span className="hidden min-w-0 flex-1 truncate sm:block">{displayName}</span>
       </>
     );
 
@@ -90,31 +92,31 @@ export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds 
         href={opgg}
         target="_blank"
         rel="noreferrer"
-        className={`flex items-center gap-1.5 min-w-0 hover:text-cyan-200 transition ${colorClass}`}
+        className={`flex w-full min-w-0 items-center gap-1.5 overflow-hidden hover:text-cyan-200 transition ${colorClass}`}
         title={displayName}
       >
         {content}
       </a>
     ) : (
-      <span className={`flex items-center gap-1.5 min-w-0 ${colorClass}`} title={displayName}>
+      <span className={`flex w-full min-w-0 items-center gap-1.5 overflow-hidden ${colorClass}`} title={displayName}>
         {content}
       </span>
     );
   };
 
   return (
-    <article className={`relative overflow-hidden border ${tone.border} ${tone.bg} rounded-lg p-3 sm:p-4 transition-all hover:bg-white/[0.055]`}>
+    <article className={`relative overflow-hidden border ${tone.border} ${tone.bg} rounded-lg p-3 sm:p-4 min-[980px]:p-3 xl:p-4 transition-all hover:bg-white/[0.055]`}>
       <div className={`absolute inset-y-0 left-0 w-1 ${match.isRemake ? "bg-slate-400/30" : isWin ? "bg-emerald-300/70" : "bg-rose-300/70"}`}></div>
 
-      <div className="grid grid-cols-1 gap-3 sm:gap-4 xl:grid-cols-[9rem_18rem_10rem_12rem_3rem_minmax(13rem,1fr)] xl:items-center">
-        <div className="flex min-w-0 items-center justify-between gap-2 text-sm xl:flex-col xl:items-start xl:justify-start">
+      <div className="grid grid-cols-1 gap-3 sm:gap-4 min-[980px]:grid-cols-[7rem_minmax(12rem,15rem)_7.5rem_minmax(9rem,11rem)_2.25rem_minmax(12rem,1fr)] min-[980px]:items-center min-[980px]:gap-3 xl:grid-cols-[8rem_minmax(14rem,17rem)_8rem_minmax(10rem,12rem)_2.5rem_minmax(13rem,1fr)] xl:gap-4">
+        <div className="flex min-w-0 items-center justify-between gap-2 text-sm min-[980px]:flex-col min-[980px]:items-start min-[980px]:justify-start">
           <div className="min-w-0">
             <h4 className="truncate font-black text-slate-200">{match.queue}</h4>
           </div>
-          <div className="flex shrink-0 items-end gap-2 xl:flex-col xl:items-start xl:gap-1">
+          <div className="flex shrink-0 items-end gap-2 min-[980px]:flex-col min-[980px]:items-start min-[980px]:gap-1">
             <Badge variant={match.isRemake ? "gray" : isWin ? "green" : "red"}>{resultLabel}</Badge>
             <div
-              className="flex flex-wrap items-center justify-end gap-x-1.5 gap-y-0.5 text-[11px] font-semibold text-slate-500 tabular-nums xl:justify-start"
+              className="flex flex-wrap items-center justify-end gap-x-1.5 gap-y-0.5 text-[11px] font-semibold text-slate-500 tabular-nums min-[980px]:justify-start"
               title={`Hora de inicio: ${startTimeLabel}`}
             >
               <span className="inline-flex items-center gap-1">
@@ -154,7 +156,7 @@ export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds 
           </div>
         </div>
 
-        <div className="flex min-w-0 xl:flex-col items-center xl:items-start justify-between gap-2">
+        <div className="flex min-w-0 items-center justify-between gap-2 min-[980px]:flex-col min-[980px]:items-start">
           <div>
             <div className="font-black text-base text-white whitespace-nowrap sm:text-lg">
               {match.kills} / <span className="text-rose-300">{match.deaths}</span> / {match.assists}
@@ -164,7 +166,7 @@ export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds 
           <Badge variant="cyan">CS {match.csTotal} ({match.csPerMin}/m)</Badge>
         </div>
 
-        <div className="grid w-full max-w-[20rem] grid-cols-6 gap-1.5 xl:max-w-none">
+        <div className="grid w-full max-w-[20rem] grid-cols-6 gap-1.5 min-[980px]:max-w-none">
           {match.items.slice(0, 6).map((itemId, index) => {
             const itemName = itemById[itemId]?.name || (itemId > 0 ? `Item ${itemId}` : "Sin item");
             return (
@@ -182,7 +184,7 @@ export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds 
           })}
         </div>
 
-        <div className="flex items-center justify-start xl:justify-center">
+        <div className="flex items-center justify-start min-[980px]:justify-center">
           <div className="w-8 h-8 bg-black/35 rounded-md border border-white/10 overflow-hidden flex items-center justify-center shadow-inner">
             {trinketId > 0 && (
               <img
@@ -195,20 +197,32 @@ export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds 
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-2 overflow-hidden rounded-lg border border-white/10 bg-black/20 p-2 text-[10px] sm:grid-cols-2 sm:gap-3 xl:border-0 xl:bg-transparent xl:p-0">
-          <div className="flex flex-col gap-1 min-w-0">
+        <div className="grid grid-cols-2 gap-2 overflow-hidden rounded-lg border border-white/10 bg-black/20 p-2 text-[9px] leading-tight min-[380px]:text-[10px] sm:gap-3 min-[980px]:border-0 min-[980px]:bg-transparent min-[980px]:p-0">
+          <div className="min-w-0">
+            <div className="mb-1.5 flex items-center justify-between text-[9px] font-black uppercase text-emerald-200/75 min-[980px]:hidden">
+              <span>Aliados</span>
+              <span>{match.allyTeam.length}</span>
+            </div>
+            <div className="flex min-w-0 flex-col gap-1">
             {match.allyTeam.map((participant) => (
               <div key={`${participant.puuid}-ally`} className="min-w-0">
                 {renderParticipant(participant)}
               </div>
             ))}
+            </div>
           </div>
-          <div className="flex flex-col gap-1 min-w-0">
+          <div className="min-w-0 border-l border-white/10 pl-2 sm:pl-3 min-[980px]:border-l-0 min-[980px]:pl-0">
+            <div className="mb-1.5 flex items-center justify-between text-[9px] font-black uppercase text-rose-200/75 min-[980px]:hidden">
+              <span>Rivales</span>
+              <span>{match.enemyTeam.length}</span>
+            </div>
+            <div className="flex min-w-0 flex-col gap-1">
             {match.enemyTeam.map((participant) => (
               <div key={`${participant.puuid}-enemy`} className="min-w-0">
                 {renderParticipant(participant, true)}
               </div>
             ))}
+            </div>
           </div>
         </div>
       </div>

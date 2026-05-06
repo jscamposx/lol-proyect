@@ -31,7 +31,7 @@ export default function RulesSection() {
     <div className="flex flex-col gap-5 sm:gap-6 animate-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto">
       <div className="py-2 sm:py-4">
         <Badge variant="purple">Manual del reto</Badge>
-        <h2 className="mt-3 text-3xl md:text-5xl font-black text-white uppercase">Reglas del reto</h2>
+        <h2 className="mt-3 text-3xl md:text-4xl xl:text-5xl font-black text-white uppercase">Reglas del reto</h2>
         <p className="text-sm text-slate-400 mt-2 font-medium sm:text-base">Condiciones claras para que el ranking tenga piso firme.</p>
       </div>
 

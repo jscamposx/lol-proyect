@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { CircleCheck, Medal } from "lucide-react";
-import { Card } from "../ui";
+import { Card, RankingLoadingState } from "../ui";
 import { getTierDisplayName, getTierIconUrl, TIER_ICON_FALLBACK_SRC } from "../../services/rankedVisuals";
 import { getProfileIconUrl } from "../../services/riotTransformers";
 import { usePlayersDashboard } from "../../hooks/usePlayersDashboard";
@@ -62,6 +62,7 @@ const MobileMetric = ({ label, value, tone = "text-slate-100" }: { label: string
 
 export default function RankingSection() {
   const dashboards = usePlayersDashboard(typedUsers);
+  const isLoading = dashboards.some((dashboard) => dashboard.loading);
 
   const getDynamicAvatarUrl = (summonerName: string) => {
     const p = dashboards.find(
@@ -112,13 +113,15 @@ export default function RankingSection() {
       }));
   }, [dashboards]);
 
+  if (dynamicRankingRows.length === 0 && isLoading) return <RankingLoadingState />;
+
   if (dynamicRankingRows.length === 0) {
-    return <div className="text-center text-slate-400 py-10">Cargando ranking u obteniendo datos...</div>;
+    return <div className="panel-muted py-10 text-center font-semibold text-slate-400">No se pudo cargar el ranking.</div>;
   }
 
   return (
     <div className="animate-in slide-in-from-bottom-4 duration-500">
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:hidden">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 min-[980px]:hidden">
         {dynamicRankingRows.map((player) => {
           const isLeader = player.rank === 1;
 
@@ -182,7 +185,7 @@ export default function RankingSection() {
         })}
       </div>
 
-      <Card className="hidden overflow-hidden lg:block">
+      <Card className="hidden overflow-hidden min-[980px]:block">
         <div className="overflow-x-auto thin-scrollbar">
           <table className="w-full min-w-[900px] border-collapse text-left text-sm xl:min-w-[1050px]">
             <thead>

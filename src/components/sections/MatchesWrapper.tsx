@@ -19,11 +19,11 @@ export default function MatchesWrapper() {
       {typedUsers.length > 1 && (
         <>
           <div className="hidden xl:block xl:fixed xl:left-[max(0.5rem,calc((100vw-80rem)/2-6.5rem))] xl:top-1/2 xl:z-40 xl:-translate-y-1/2">
-            <PlayerTabs users={typedUsers} activeId={activeUser} onChange={setActiveUser} profiles={profiles} />
+            <PlayerTabs users={typedUsers} activeId={activeUser} onChange={setActiveUser} profiles={profiles} placement="side" />
           </div>
-          <div className="sticky top-[4.55rem] z-30 -mx-3 mb-4 border-y border-white/5 bg-[#080510]/92 px-3 py-3 shadow-[0_18px_40px_-34px_rgba(0,0,0,0.95)] backdrop-blur-xl sm:-mx-4 sm:px-4 md:-mx-6 md:px-6 xl:hidden">
-            <div className="mx-auto max-w-3xl xl:max-w-md">
-              <PlayerTabs users={typedUsers} activeId={activeUser} onChange={setActiveUser} profiles={profiles} />
+          <div className="fixed inset-x-0 bottom-0 z-50 px-3 pt-2 xl:hidden player-tabs-bottom-safe">
+            <div className="mx-auto flex max-w-md items-center justify-center px-3 py-2.5">
+              <PlayerTabs users={typedUsers} activeId={activeUser} onChange={setActiveUser} profiles={profiles} placement="bottom" />
             </div>
           </div>
         </>

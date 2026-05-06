@@ -41,8 +41,8 @@ export const StatsOverview = ({ stats, championPool }: StatsOverviewProps) => {
     <Card className="relative overflow-hidden p-0">
       <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-emerald-300/80 via-violet-300/75 to-cyan-200/80"></div>
 
-      <div className="grid lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[21rem_minmax(0,1fr)]">
-        <div className="relative overflow-hidden border-b border-white/10 p-4 sm:p-6 lg:border-b-0 lg:border-r lg:p-7">
+      <div className="grid min-[980px]:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[21rem_minmax(0,1fr)]">
+        <div className="relative overflow-hidden border-b border-white/10 p-4 sm:p-6 min-[980px]:border-b-0 min-[980px]:border-r min-[980px]:p-7">
           <div className="absolute inset-0 bg-linear-to-br from-emerald-400/[0.08] via-transparent to-cyan-300/[0.07]"></div>
           <div className="relative">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -55,7 +55,7 @@ export const StatsOverview = ({ stats, championPool }: StatsOverviewProps) => {
               </Badge>
             </div>
 
-            <div className="mt-5 flex flex-col items-center gap-5 sm:mt-6 sm:flex-row lg:flex-col">
+            <div className="mt-5 flex flex-col items-center gap-5 sm:mt-6">
               <div className="relative h-32 w-32 shrink-0 rounded-full p-1.5 shadow-[0_0_42px_rgba(34,211,238,0.12)] sm:h-38 sm:w-38">
                 <div
                   className="absolute inset-0 rounded-full"
@@ -92,7 +92,7 @@ export const StatsOverview = ({ stats, championPool }: StatsOverviewProps) => {
           </div>
         </div>
 
-        <div className="p-4 sm:p-6 lg:p-7">
+        <div className="p-4 sm:p-6 min-[980px]:p-7">
           <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:gap-x-5 sm:gap-y-6 xl:grid-cols-4">
             {statItems.map(({ label, value, detail, Icon, tone }) => (
               <div key={label} className="min-w-0">
