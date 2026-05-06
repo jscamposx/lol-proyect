@@ -41,7 +41,7 @@ export const StatsOverview = ({ stats, championPool }: StatsOverviewProps) => {
     <Card className="relative overflow-hidden p-0">
       <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-emerald-300/80 via-violet-300/75 to-cyan-200/80"></div>
 
-      <div className="grid lg:grid-cols-[21rem_minmax(0,1fr)]">
+      <div className="grid lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[21rem_minmax(0,1fr)]">
         <div className="relative overflow-hidden border-b border-white/10 p-4 sm:p-6 lg:border-b-0 lg:border-r lg:p-7">
           <div className="absolute inset-0 bg-linear-to-br from-emerald-400/[0.08] via-transparent to-cyan-300/[0.07]"></div>
           <div className="relative">
@@ -51,7 +51,7 @@ export const StatsOverview = ({ stats, championPool }: StatsOverviewProps) => {
                 <h2 className="mt-1 text-2xl font-black text-white sm:text-3xl">Estadisticas ranked</h2>
               </div>
               <Badge variant={stats.winrate >= 55 ? "green" : stats.winrate >= 48 ? "yellow" : "red"}>
-                {stats.totalGames} games
+                {stats.totalGames} partidas
               </Badge>
             </div>
 
@@ -172,7 +172,7 @@ const FeaturedChampion = ({ champ }: { champ: ChampionSummary }) => {
             <span className="text-emerald-200">{champ.wins}W</span>
             <span className="text-rose-200">{champ.losses}L</span>
             <span className={getPoolWinrateTone(champ.winrate)}>{champ.winrate}% WR</span>
-            <span className="text-slate-500">{total} juegos</span>
+            <span className="text-slate-500">{total} partidas</span>
           </div>
         </div>
       </div>
@@ -207,7 +207,7 @@ const ChampionPoolCard = ({
         <div className="min-w-0 flex-1">
           <div className="truncate text-base font-black text-white">{champ.championName}</div>
           <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase">
-            <span className="text-slate-400">{total} juegos</span>
+            <span className="text-slate-400">{total} partidas</span>
             <span className="text-emerald-200">{champ.wins}W</span>
             <span className="text-rose-200">{champ.losses}L</span>
             <span className={getPoolWinrateTone(champ.winrate)}>{champ.winrate}% WR</span>

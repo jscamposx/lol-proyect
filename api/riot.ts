@@ -1,5 +1,7 @@
 export default async function handler(req: any, res: any) {
-  const { url } = req.query;
+  const rawUrl = req.query.url;
+
+  const url = Array.isArray(rawUrl) ? rawUrl[0] : rawUrl;
 
   if (!url || typeof url !== "string") {
     return res.status(400).json({
@@ -8,6 +10,9 @@ export default async function handler(req: any, res: any) {
   }
 
   const apiKey = process.env.RIOT_API_KEY;
+
+  console.log("RIOT_API_KEY exists:", Boolean(apiKey));
+  console.log("Riot URL:", url);
 
   if (!apiKey) {
     return res.status(500).json({
@@ -22,16 +27,20 @@ export default async function handler(req: any, res: any) {
       },
     });
 
-    // Check if the response is JSON (Riot API usually returns JSON)
-    const contentType = riotResponse.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-      const data = await riotResponse.json();
-      return res.status(riotResponse.status).json(data);
-    } else {
-      const text = await riotResponse.text();
-      return res.status(riotResponse.status).send(text);
+    const text = await riotResponse.text();
+
+    let data;
+
+    try {
+      data = text ? JSON.parse(text) : null;
+    } catch {
+      data = { raw: text };
     }
+
+    return res.status(riotResponse.status).json(data);
   } catch (error) {
+    console.error("Error fetching Riot API:", error);
+
     return res.status(500).json({
       error: "Error fetching Riot API",
       details: error instanceof Error ? error.message : "Unknown error",

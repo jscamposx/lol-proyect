@@ -37,6 +37,16 @@ export const formatShortTime = (timestamp: number | null) => {
   return new Date(timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
 
+export const formatMatchStartTime = (timestamp: number | null) => {
+  if (!timestamp) return "-";
+
+  return new Intl.DateTimeFormat("es-MX", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(new Date(timestamp));
+};
+
 export const getWinrateTone = (winrate: number) => {
   if (winrate >= 55) return "text-emerald-400";
   if (winrate >= 48) return "text-amber-400";

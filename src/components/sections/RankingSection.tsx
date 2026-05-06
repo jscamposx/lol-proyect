@@ -1,68 +1,31 @@
+import { useMemo } from "react";
 import { CircleCheck, Medal } from "lucide-react";
 import { Card } from "../ui";
 import { getTierDisplayName, getTierIconUrl, TIER_ICON_FALLBACK_SRC } from "../../services/rankedVisuals";
+import { getProfileIconUrl } from "../../services/riotTransformers";
+import { usePlayersDashboard } from "../../hooks/usePlayersDashboard";
+import usersData from "../../data/users.json";
+import type { RiotRegion, RiotRouting, UserConfig } from "../../types/user";
 
 type RankingRow = {
   rank: number;
   summoner: string;
-  region: string;
-  routing: string;
-  tier: "GOLD" | "SILVER";
+  region: RiotRegion;
+  routing: RiotRouting;
+  tier: string;
   elo: string;
   absoluteLp: string;
-  climb: string;
   games: string;
   winrate: string;
   kda: string;
   csPerMinute: string;
 };
 
-const fallbackAvatar = "https://ddragon.leagueoflegends.com/cdn/15.9.1/img/profileicon/29.png";
+const typedUsers = usersData as UserConfig[];
 
-const rankingRows: RankingRow[] = [
-  {
-    rank: 1,
-    summoner: "HHH Maximal27",
-    region: "la1",
-    routing: "americas",
-    tier: "GOLD",
-    elo: "Oro II - 92 LP",
-    absoluteLp: "1,492 LP abs.",
-    climb: "0 LP",
-    games: "19W/27L",
-    winrate: "40%",
-    kda: "2.48",
-    csPerMinute: "3.9",
-  },
-  {
-    rank: 2,
-    summoner: "camposx",
-    region: "la1",
-    routing: "americas",
-    tier: "GOLD",
-    elo: "Oro III - 10 LP",
-    absoluteLp: "1,310 LP abs.",
-    climb: "0 LP",
-    games: "7W/7L",
-    winrate: "50%",
-    kda: "3.05",
-    csPerMinute: "6.4",
-  },
-  {
-    rank: 3,
-    summoner: "AssessinRD",
-    region: "la1",
-    routing: "americas",
-    tier: "SILVER",
-    elo: "Plata I - 36 LP",
-    absoluteLp: "1,136 LP abs.",
-    climb: "0 LP",
-    games: "20W/14L",
-    winrate: "61%",
-    kda: "3.14",
-    csPerMinute: "6.4",
-  },
-];
+// You'll want to either pass the Riot icon id here, or match the user from usePlayersDashboard.
+// For now, this fallback stays until we integrate the real profile icons.
+const fallbackAvatar = "https://ddragon.leagueoflegends.com/cdn/15.9.1/img/profileicon/29.png";
 
 const getWinrateTone = (winrate: string) => {
   const value = Number.parseInt(winrate, 10);
@@ -71,19 +34,24 @@ const getWinrateTone = (winrate: string) => {
   return "text-rose-300";
 };
 
-const RankEmblem = ({ tier, compact = false }: { tier: RankingRow["tier"]; compact?: boolean }) => (
-  <div className={`flex shrink-0 items-center justify-center overflow-visible ${compact ? "h-16 w-16" : "h-24 w-24"}`}>
-    <img
-      src={getTierIconUrl(tier)}
-      alt={`Emblema ${getTierDisplayName(tier)}`}
-      className="h-full w-full scale-125 object-contain drop-shadow-[0_0_18px_rgba(255,255,255,0.18)]"
-      onError={(event) => {
-        event.currentTarget.src = TIER_ICON_FALLBACK_SRC;
-        event.currentTarget.className = "h-full w-full rounded-lg bg-white/[0.06]";
-      }}
-    />
-  </div>
-);
+const RankEmblem = ({ tier, compact = false }: { tier: RankingRow["tier"]; compact?: boolean }) => {
+  const isUnranked = tier === "UNRANKED" || !tier;
+  return (
+    <div className={`flex shrink-0 items-center justify-center ${compact ? "h-14 w-14" : "h-16 w-16"}`}>
+      <img
+        src={getTierIconUrl(tier)}
+        alt={`Emblema ${getTierDisplayName(tier)}`}
+        className={`w-full h-full object-center drop-shadow-[0_0_18px_rgba(255,255,255,0.18)] ${
+          isUnranked ? "object-contain scale-75 opacity-70" : "object-cover scale-[1.15]"
+        }`}
+        onError={(event) => {
+          event.currentTarget.src = TIER_ICON_FALLBACK_SRC;
+          event.currentTarget.className = "h-full w-full object-contain p-2 rounded-lg bg-white/[0.06] opacity-50";
+        }}
+      />
+    </div>
+  );
+};
 
 const MobileMetric = ({ label, value, tone = "text-slate-100" }: { label: string; value: string; tone?: string }) => (
   <div className="min-w-0 rounded-lg border border-white/10 bg-white/[0.045] px-3 py-2.5">
@@ -93,10 +61,65 @@ const MobileMetric = ({ label, value, tone = "text-slate-100" }: { label: string
 );
 
 export default function RankingSection() {
+  const dashboards = usePlayersDashboard(typedUsers);
+
+  const getDynamicAvatarUrl = (summonerName: string) => {
+    const p = dashboards.find(
+      (d) => d.data && d.data.accountInfo.gameName?.toLowerCase() === summonerName.toLowerCase()
+    );
+    if (p && p.data && p.data.accountInfo.profileIconId) {
+      return getProfileIconUrl(p.data.accountInfo.profileIconId);
+    }
+    return fallbackAvatar;
+  };
+
+  const dynamicRankingRows: RankingRow[] = useMemo(() => {
+    return dashboards
+      .filter((d) => d.data)
+      .map((d) => {
+        const p = d.data!;
+        const r = p.ranked;
+        const userConfig = typedUsers.find((user) => user.id === d.userId);
+        const recentGames = p.recentStats?.totalGames ?? 0;
+        const hasRecentGames = recentGames > 0;
+        const wins = hasRecentGames ? p.recentStats.wins : r?.wins ?? 0;
+        const losses = hasRecentGames ? p.recentStats.losses : r?.losses ?? 0;
+        const totalGames = wins + losses;
+        const winrate = hasRecentGames
+          ? p.recentStats.winrate
+          : totalGames > 0
+            ? Math.round((wins / totalGames) * 100)
+            : 0;
+        
+        return {
+          summoner: p.accountInfo.gameName,
+          region: userConfig?.region ?? "la1",
+          routing: userConfig?.routing ?? "americas",
+          tier: r ? r.tier : "UNRANKED",
+          elo: r ? `${getTierDisplayName(r.tier)} ${r.rank} - ${r.lp} LP` : "Unranked",
+          absoluteLp: r ? `${r.absoluteLp.toLocaleString()} LP abs.` : "0 LP abs.",
+          games: `${wins}W/${losses}L`,
+          winrate: `${winrate}%`,
+          kda: p.recentStats?.averageKda ? p.recentStats.averageKda.toFixed(2) : "0.00",
+          csPerMinute: p.recentStats?.averageCsPerMin ? p.recentStats.averageCsPerMin.toFixed(1) : "0.0",
+          _sortValue: r ? r.absoluteLp : -1,
+        };
+      })
+      .sort((a, b) => b._sortValue - a._sortValue)
+      .map((row, index) => ({
+        ...row,
+        rank: index + 1,
+      }));
+  }, [dashboards]);
+
+  if (dynamicRankingRows.length === 0) {
+    return <div className="text-center text-slate-400 py-10">Cargando ranking u obteniendo datos...</div>;
+  }
+
   return (
     <div className="animate-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col gap-3 lg:hidden">
-        {rankingRows.map((player) => {
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:hidden">
+        {dynamicRankingRows.map((player) => {
           const isLeader = player.rank === 1;
 
           return (
@@ -118,11 +141,12 @@ export default function RankingSection() {
                 </div>
 
                 <img
-                  src={fallbackAvatar}
+                  src={getDynamicAvatarUrl(player.summoner)}
                   className={`h-12 w-12 shrink-0 rounded-lg border object-cover shadow-md ${
                     isLeader ? "border-amber-300/60" : "border-white/10"
                   }`}
                   alt={`Avatar de ${player.summoner}`}
+                  onError={(e) => { e.currentTarget.src = fallbackAvatar; }}
                 />
 
                 <div className="min-w-0 flex-1">
@@ -147,7 +171,6 @@ export default function RankingSection() {
               </div>
 
               <div className="mt-3 grid grid-cols-2 gap-2 min-[420px]:grid-cols-3">
-                <MobileMetric label="Subida" value={player.climb} />
                 <MobileMetric label="Partidas" value={player.games} />
                 <MobileMetric label="Winrate" value={player.winrate} tone={getWinrateTone(player.winrate)} />
                 <MobileMetric label="KDA" value={player.kda} />
@@ -161,22 +184,21 @@ export default function RankingSection() {
 
       <Card className="hidden overflow-hidden lg:block">
         <div className="overflow-x-auto thin-scrollbar">
-          <table className="w-full min-w-[1050px] border-collapse text-left">
+          <table className="w-full min-w-[900px] border-collapse text-left text-sm xl:min-w-[1050px]">
             <thead>
               <tr className="border-b border-white/10 bg-black/25 text-xs uppercase text-slate-500">
-                <th className="px-5 py-4 text-center font-bold">Rank</th>
-                <th className="px-5 py-4 font-bold">Invocador</th>
-                <th className="px-5 py-4 text-center font-bold">ELO actual</th>
-                <th className="px-5 py-4 text-center font-bold">Subida</th>
-                <th className="px-5 py-4 text-center font-bold">Partidas</th>
-                <th className="px-5 py-4 text-center font-bold">Winrate</th>
-                <th className="px-5 py-4 text-center font-bold">KDA</th>
-                <th className="px-5 py-4 text-center font-bold">CS/M</th>
-                <th className="px-5 py-4 text-center font-bold">Estado</th>
+                <th className="px-3 py-3 text-center font-bold xl:px-5 xl:py-4">Rank</th>
+                <th className="px-3 py-3 font-bold xl:px-5 xl:py-4">Invocador</th>
+                <th className="px-3 py-3 text-center font-bold xl:px-5 xl:py-4">ELO actual</th>
+                <th className="px-3 py-3 text-center font-bold xl:px-5 xl:py-4">Partidas</th>
+                <th className="px-3 py-3 text-center font-bold xl:px-5 xl:py-4">Winrate</th>
+                <th className="px-3 py-3 text-center font-bold xl:px-5 xl:py-4">KDA</th>
+                <th className="px-3 py-3 text-center font-bold xl:px-5 xl:py-4">CS/M</th>
+                <th className="px-3 py-3 text-center font-bold xl:px-5 xl:py-4">Estado</th>
               </tr>
             </thead>
             <tbody>
-              {rankingRows.map((player) => {
+              {dynamicRankingRows.map((player) => {
                 const isLeader = player.rank === 1;
 
                 return (
@@ -186,7 +208,7 @@ export default function RankingSection() {
                       isLeader ? "bg-amber-300/[0.055] text-amber-100" : "text-slate-300"
                     }`}
                   >
-                    <td className="px-5 py-4 text-center">
+                    <td className="px-3 py-3 text-center xl:px-5 xl:py-4">
                       {isLeader ? (
                         <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-amber-200/25 bg-amber-300/15 text-amber-100">
                           <Medal className="h-5 w-5" />
@@ -197,14 +219,15 @@ export default function RankingSection() {
                         </span>
                       )}
                     </td>
-                    <td className="px-5 py-4 font-bold text-white">
+                    <td className="px-3 py-3 font-bold text-white xl:px-5 xl:py-4">
                       <div className="flex items-center gap-3">
                         <img
-                          src={fallbackAvatar}
+                          src={getDynamicAvatarUrl(player.summoner)}
                           className={`h-11 w-11 rounded-lg border object-cover shadow-md ${
                             isLeader ? "border-amber-300/60" : "border-white/10"
                           }`}
                           alt={`Avatar de ${player.summoner}`}
+                          onError={(e) => { e.currentTarget.src = fallbackAvatar; }}
                         />
                         <div className="min-w-0">
                           <div className="truncate">{player.summoner}</div>
@@ -214,25 +237,20 @@ export default function RankingSection() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-center">
-                      <div className="flex items-center justify-center gap-5">
-                        <RankEmblem tier={player.tier} />
+                    <td className="px-3 py-3 text-center xl:px-5 xl:py-4">
+                      <div className="flex items-center justify-center gap-3 xl:gap-5">
+                        <RankEmblem tier={player.tier} compact />
                         <div className="min-w-0 text-left">
                           <div className="truncate font-black text-violet-100">{player.elo}</div>
                           <div className="mt-1 text-[10px] font-bold uppercase text-slate-500">{player.absoluteLp}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-center">
-                      <span className="inline-flex items-center rounded-md border border-white/10 bg-white/[0.055] px-2 py-1 text-xs font-black text-slate-300">
-                        {player.climb}
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-center font-bold text-slate-300">{player.games}</td>
-                    <td className={`px-5 py-4 text-center font-bold ${getWinrateTone(player.winrate)}`}>{player.winrate}</td>
-                    <td className="px-5 py-4 text-center">{player.kda}</td>
-                    <td className="px-5 py-4 text-center font-bold text-cyan-100">{player.csPerMinute}</td>
-                    <td className="px-5 py-4 text-center font-bold">
+                    <td className="whitespace-nowrap px-3 py-3 text-center font-bold text-slate-300 xl:px-5 xl:py-4">{player.games}</td>
+                    <td className={`px-3 py-3 text-center font-bold xl:px-5 xl:py-4 ${getWinrateTone(player.winrate)}`}>{player.winrate}</td>
+                    <td className="px-3 py-3 text-center xl:px-5 xl:py-4">{player.kda}</td>
+                    <td className="px-3 py-3 text-center font-bold text-cyan-100 xl:px-5 xl:py-4">{player.csPerMinute}</td>
+                    <td className="px-3 py-3 text-center font-bold xl:px-5 xl:py-4">
                       <span className="inline-flex items-center justify-center gap-2 text-emerald-300">
                         <CircleCheck className="h-4 w-4" />
                         Listo

@@ -15,14 +15,16 @@ export default function MatchesWrapper() {
   if (!selectedUser) return <div className="text-white text-center py-20 font-bold text-2xl">No hay usuarios configurados</div>;
 
   return (
-    <div className="relative md:pl-16 2xl:pl-0">
+    <div className="relative xl:pl-16 2xl:pl-0">
       {typedUsers.length > 1 && (
         <>
-          <div className="hidden md:block md:fixed md:left-[max(0.5rem,calc((100vw-80rem)/2-6.5rem))] md:top-1/2 md:z-40 md:-translate-y-1/2">
+          <div className="hidden xl:block xl:fixed xl:left-[max(0.5rem,calc((100vw-80rem)/2-6.5rem))] xl:top-1/2 xl:z-40 xl:-translate-y-1/2">
             <PlayerTabs users={typedUsers} activeId={activeUser} onChange={setActiveUser} profiles={profiles} />
           </div>
-          <div className="sticky top-[4.55rem] z-30 -mx-3 mb-4 border-y border-white/5 bg-[#080510]/88 px-3 py-2 backdrop-blur-xl sm:-mx-4 sm:px-4 md:hidden">
-           <PlayerTabs users={typedUsers} activeId={activeUser} onChange={setActiveUser} profiles={profiles} />
+          <div className="sticky top-[4.55rem] z-30 -mx-3 mb-4 border-y border-white/5 bg-[#080510]/92 px-3 py-3 shadow-[0_18px_40px_-34px_rgba(0,0,0,0.95)] backdrop-blur-xl sm:-mx-4 sm:px-4 md:-mx-6 md:px-6 xl:hidden">
+            <div className="mx-auto max-w-3xl xl:max-w-md">
+              <PlayerTabs users={typedUsers} activeId={activeUser} onChange={setActiveUser} profiles={profiles} />
+            </div>
           </div>
         </>
       )}

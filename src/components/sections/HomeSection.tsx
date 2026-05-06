@@ -7,7 +7,7 @@ const heroImage = "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/M
 export default function HomeSection({ setTab }: { setTab: (t: string) => void }) {
   return (
     <div className="flex flex-col gap-5 sm:gap-8 animate-in slide-in-from-bottom-4 duration-700">
-      <section className="hero-arena relative min-h-[calc(100svh-13rem)] sm:min-h-[620px] md:min-h-[68vh] overflow-hidden flex items-end">
+      <section className="hero-arena relative min-h-[calc(100svh-13rem)] sm:min-h-[560px] md:min-h-[580px] lg:min-h-[calc(100svh-11rem)] xl:min-h-[68vh] overflow-hidden flex items-end">
         <img
           src={heroImage}
           alt=""
@@ -17,13 +17,13 @@ export default function HomeSection({ setTab }: { setTab: (t: string) => void })
         <div className="absolute inset-0 bg-linear-to-t from-[#090511] via-transparent to-[#090511]/30"></div>
         <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-violet-200/50 to-transparent"></div>
 
-        <div className="relative z-10 w-full p-4 sm:p-6 md:p-10 lg:p-14">
+        <div className="relative z-10 w-full p-4 sm:p-6 md:p-10 lg:p-12 xl:p-14">
           <div className="max-w-3xl text-left">
             <Badge variant="gold">
               <Trophy className="h-3.5 w-3.5" />
               Temporada 2026
             </Badge>
-            <h1 className="mt-5 text-4xl sm:text-5xl md:text-7xl font-black text-white uppercase leading-[0.98] text-balance">
+            <h1 className="mt-5 text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-black text-white uppercase leading-[0.98] text-balance">
               El Reto del Pequeño César
             </h1>
             <p className="mt-4 sm:mt-5 max-w-2xl text-sm sm:text-base md:text-lg text-slate-200/80 leading-relaxed font-medium">
@@ -42,7 +42,7 @@ export default function HomeSection({ setTab }: { setTab: (t: string) => void })
             </div>
           </div>
 
-          <div className="hidden lg:grid absolute right-8 bottom-8 w-[360px] grid-cols-3 overflow-hidden rounded-lg border border-white/10 bg-black/35 backdrop-blur-xl">
+          <div className="hidden xl:grid absolute right-8 bottom-8 w-[360px] grid-cols-3 overflow-hidden rounded-lg border border-white/10 bg-black/35 backdrop-blur-xl">
             <div className="p-4 border-r border-white/10">
               <div className="text-2xl font-black text-white">{usersData.length}</div>
               <div className="text-[11px] text-slate-400 uppercase">Cuentas</div>

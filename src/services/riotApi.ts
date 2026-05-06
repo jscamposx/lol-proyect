@@ -29,9 +29,7 @@ const getApiErrorMessage = async (res: Response) => {
 };
 
 const getProxyUrl = (riotUrl: string) => {
-  const proxyUrl = new URL(`${API_BASE_URL}/api/riot`, window.location.origin);
-  proxyUrl.searchParams.set("url", riotUrl);
-  return proxyUrl.toString();
+  return `${API_BASE_URL}/api/riot?url=${encodeURIComponent(riotUrl)}`;
 };
 
 const fetchWithCache = async <T>(url: string, cacheKey: string): Promise<T> => {

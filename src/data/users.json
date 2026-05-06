@@ -5,17 +5,15 @@
     "gameName": "camposx",
     "tagLine": "J23",
     "region": "la1",
-    "routing": "americas",
-    "avatar": "/avatars/camposx.png"
+    "routing": "americas"
   },
   {
-    "id": "hhh-maximal27",
-    "displayName": "HHH Maximal27",
-    "gameName": "HHH Maximal27",
-    "tagLine": "LAN",
+    "id": "mamamaxima27",
+    "displayName": "Mamamaxima27",
+    "gameName": "Mamamaxima27",
+    "tagLine": "Simon",
     "region": "la1",
-    "routing": "americas",
-    "avatar": "/avatars/hhh-maximal27.png"
+    "routing": "americas"
   },
   {
     "id": "assessinrd",
@@ -23,7 +21,6 @@
     "gameName": "AssessinRD",
     "tagLine": "LAN",
     "region": "la1",
-    "routing": "americas",
-    "avatar": "/avatars/assessinrd.png"
+    "routing": "americas"
   }
 ]

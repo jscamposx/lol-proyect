@@ -5,7 +5,7 @@ export default function AppShell({ children, currentTab, setTab }: { children: R
   const activeTab = tabs.find((tab) => tab.id === currentTab) ?? tabs[0];
   const mobileLabels: Record<string, string> = {
     participants: "Equipo",
-    matches: "Juegos",
+    matches: "Partidas",
     ranking: "Rank",
   };
 
@@ -15,8 +15,8 @@ export default function AppShell({ children, currentTab, setTab }: { children: R
       <div className="app-rift"></div>
       <div className="app-vignette"></div>
 
-      <header className="sticky top-0 z-40 px-3 pt-3 sm:px-4 md:px-8 md:pt-4">
-        <div className="max-w-7xl mx-auto glass-nav px-2.5 py-2 flex items-center justify-between gap-3 sm:px-3 sm:py-2.5 md:gap-4">
+      <header className="sticky top-0 z-40 px-3 pt-3 sm:px-4 md:px-6 md:pt-4 xl:px-8">
+        <div className="max-w-7xl mx-auto glass-nav px-2.5 py-2 flex items-center justify-between gap-3 sm:px-3 sm:py-2.5 lg:gap-4">
           <button
             type="button"
             onClick={() => setTab("home")}
@@ -30,7 +30,7 @@ export default function AppShell({ children, currentTab, setTab }: { children: R
             </div>
           </button>
 
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-0.5 lg:gap-1">
             {tabs.map(({ id, label, Icon }) => {
               const isActive = currentTab === id;
 
@@ -39,7 +39,7 @@ export default function AppShell({ children, currentTab, setTab }: { children: R
                   key={id}
                   type="button"
                   onClick={() => setTab(id)}
-                  className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold transition ${
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-2 py-2 text-xs font-bold transition lg:gap-2 lg:px-3 lg:text-sm ${
                     isActive
                       ? "bg-violet-500/20 text-white border border-violet-300/25"
                       : "text-slate-400 border border-transparent hover:text-white hover:bg-white/[0.06]"
@@ -55,7 +55,7 @@ export default function AppShell({ children, currentTab, setTab }: { children: R
         </div>
       </header>
 
-      <main className="relative max-w-7xl mx-auto px-3 sm:px-4 md:px-8 pt-4 sm:pt-6 md:pt-8 mobile-safe-bottom">
+      <main className="relative max-w-7xl mx-auto px-3 sm:px-4 md:px-6 xl:px-8 pt-4 sm:pt-6 md:pt-7 xl:pt-8 mobile-safe-bottom">
         {children}
       </main>
 

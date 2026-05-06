@@ -1,8 +1,9 @@
 import type { DashboardMatch } from "../../types/dashboard";
 import type { DdragonMaps } from "../../hooks/useDdragonData";
 import type { RiotRegion } from "../../types/user";
-import { BadgePlus, Crosshair, Map, Shield, Swords, Target } from "lucide-react";
+import { Clock3 } from "lucide-react";
 import { Badge } from "../ui";
+import { LolPositionIcon } from "./LolPositionIcon";
 import {
   getChampionIconUrl,
   getItemIconUrl,
@@ -10,7 +11,7 @@ import {
   getSpellIconUrl,
   getSummonerSpellIconUrl
 } from "../../services/riotTransformers";
-import { formatDuration, getMatchTone, getOpgProfileUrl } from "../../utils/formatters";
+import { formatDuration, formatMatchStartTime, getMatchTone, getOpgProfileUrl } from "../../utils/formatters";
 
 type MatchCardProps = {
   match: DashboardMatch;
@@ -23,15 +24,16 @@ type MatchCardProps = {
 const normalizeRiotId = (value: string) => value.trim().toLowerCase();
 
 const POSITION_META = {
-  TOP: { label: "Top", Icon: Shield },
-  JUNGLE: { label: "Jungla", Icon: Map },
-  MIDDLE: { label: "Mid", Icon: Crosshair },
-  MID: { label: "Mid", Icon: Crosshair },
-  BOTTOM: { label: "Bot", Icon: Target },
-  ADC: { label: "Bot", Icon: Target },
-  UTILITY: { label: "Supp", Icon: BadgePlus },
-  SUPPORT: { label: "Supp", Icon: BadgePlus },
-  NONE: { label: "Rol", Icon: Swords },
+  TOP: { label: "Top", icon: "top" },
+  JUNGLE: { label: "Jungla", icon: "jungle" },
+  MIDDLE: { label: "Mid", icon: "middle" },
+  MID: { label: "Mid", icon: "middle" },
+  BOTTOM: { label: "Bot", icon: "bottom" },
+  BOT: { label: "Bot", icon: "bottom" },
+  ADC: { label: "Bot", icon: "bottom" },
+  UTILITY: { label: "Supp", icon: "utility" },
+  SUPPORT: { label: "Supp", icon: "utility" },
+  NONE: { label: "Rol", icon: "none" },
 } as const;
 
 export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds }: MatchCardProps) => {
@@ -50,6 +52,7 @@ export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds 
   const { itemById, spellById, runeById, styleById } = ddragon;
 
   const durationLabel = formatDuration(match.duration);
+  const startTimeLabel = formatMatchStartTime(match.timestamp);
   const trinketId = match.items[6];
   const mainRune = match.mainRuneId ? runeById[match.mainRuneId] : undefined;
   const secondaryStyle = match.secondaryStyleId ? styleById[match.secondaryStyleId] : undefined;
@@ -60,7 +63,6 @@ export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds 
   const spellBIcon = spellB?.icon ? getSummonerSpellIconUrl(spellB.icon) : getSpellIconUrl(match.spells[1]);
   const positionKey = (match.position || "NONE").toUpperCase() as keyof typeof POSITION_META;
   const positionMeta = POSITION_META[positionKey] ?? POSITION_META.NONE;
-  const PositionIcon = positionMeta.Icon;
 
   const renderParticipant = (participant: DashboardMatch["allyTeam"][number], muted = false) => {
     const displayName = participant.riotIdGameName && participant.riotIdTagline
@@ -111,7 +113,17 @@ export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds 
           </div>
           <div className="flex shrink-0 items-end gap-2 xl:flex-col xl:items-start xl:gap-1">
             <Badge variant={match.isRemake ? "gray" : isWin ? "green" : "red"}>{resultLabel}</Badge>
-            <span className="text-slate-500 text-[11px]">{durationLabel}</span>
+            <div
+              className="flex flex-wrap items-center justify-end gap-x-1.5 gap-y-0.5 text-[11px] font-semibold text-slate-500 tabular-nums xl:justify-start"
+              title={`Hora de inicio: ${startTimeLabel}`}
+            >
+              <span className="inline-flex items-center gap-1">
+                <Clock3 className="h-3 w-3 text-slate-600" aria-hidden="true" />
+                {startTimeLabel}
+              </span>
+              <span className="text-white/15">•</span>
+              <span>{durationLabel}</span>
+            </div>
           </div>
         </div>
 
@@ -129,7 +141,7 @@ export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds 
           <div className="flex flex-col gap-2 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] uppercase border border-white/10 text-slate-300" title={match.position || "Sin rol"}>
-                <PositionIcon className="h-3.5 w-3.5 text-violet-200" />
+                <LolPositionIcon name={positionMeta.icon} className="h-4 w-4 shrink-0 drop-shadow-[0_0_8px_rgba(200,170,110,0.28)]" />
                 {positionMeta.label}
               </span>
             </div>
