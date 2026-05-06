@@ -53,24 +53,16 @@ const loadRankedEntries = async (
   try {
     return await getRankedEntriesByPuuid(puuid, user.region);
   } catch (error) {
-    if (import.meta.env.DEV) {
-      console.warn("Failed fetching ranked entries by PUUID, trying summoner id fallback:", error);
-    }
+    // Fallback if puuid ranked entries fail
   }
 
   if (!summonerId) {
-    if (import.meta.env.DEV) {
-      console.warn(`No summoner.id for ${user.id}, skipping ranked fallback.`);
-    }
     return [];
   }
 
   try {
     return await getRankedEntriesBySummonerId(summonerId, user.region);
   } catch (error) {
-    if (import.meta.env.DEV) {
-      console.warn("Failed fetching ranked entries by summoner id:", error);
-    }
     return [];
   }
 };

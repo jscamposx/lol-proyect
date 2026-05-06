@@ -1,4 +1,16 @@
-export default async function handler(req: any, res: any) {
+type RiotProxyRequest = {
+  query: {
+    url?: string | string[];
+  };
+};
+
+type RiotProxyResponse = {
+  status: (statusCode: number) => {
+    json: (body: unknown) => unknown;
+  };
+};
+
+export default async function handler(req: RiotProxyRequest, res: RiotProxyResponse) {
   const rawUrl = req.query.url;
 
   const url = Array.isArray(rawUrl) ? rawUrl[0] : rawUrl;
@@ -10,9 +22,6 @@ export default async function handler(req: any, res: any) {
   }
 
   const apiKey = process.env.RIOT_API_KEY;
-
-  console.log("RIOT_API_KEY exists:", Boolean(apiKey));
-  console.log("Riot URL:", url);
 
   if (!apiKey) {
     return res.status(500).json({
@@ -29,7 +38,7 @@ export default async function handler(req: any, res: any) {
 
     const text = await riotResponse.text();
 
-    let data;
+    let data: unknown;
 
     try {
       data = text ? JSON.parse(text) : null;
@@ -39,8 +48,6 @@ export default async function handler(req: any, res: any) {
 
     return res.status(riotResponse.status).json(data);
   } catch (error) {
-    console.error("Error fetching Riot API:", error);
-
     return res.status(500).json({
       error: "Error fetching Riot API",
       details: error instanceof Error ? error.message : "Unknown error",

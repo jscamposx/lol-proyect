@@ -49,7 +49,7 @@ export default function AppShell({ children, currentTab, setTab }: { children: R
           <button
             type="button"
             onClick={() => selectNavTab("home")}
-            className="min-w-0 flex flex-1 items-center gap-2 rounded-lg px-1.5 py-1.5 text-left transition hover:bg-white/[0.06] sm:gap-3 sm:px-2"
+            className="min-w-0 flex flex-1 items-center gap-2 rounded-lg px-1.5 py-1.5 text-left transition hover:bg-white/[0.06] sm:gap-3 sm:px-2 lg:flex-none lg:pr-3"
             aria-label="Ir al inicio"
           >
             <img src="/favicon.svg" alt="" className="h-8 w-8 shrink-0" />
@@ -59,7 +59,30 @@ export default function AppShell({ children, currentTab, setTab }: { children: R
             </div>
           </button>
 
-          <div className="relative shrink-0" ref={menuRef}>
+          <nav className="hidden min-w-0 items-center gap-1 lg:flex" aria-label="NavegaciÃ³n principal">
+            {tabs.map(({ id, label, Icon }) => {
+              const isActive = currentTab === id;
+
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => selectNavTab(id)}
+                  className={`inline-flex h-10 items-center gap-2 rounded-lg border px-3 text-sm font-bold transition xl:px-3.5 ${
+                    isActive
+                      ? "border-violet-300/25 bg-violet-500/20 text-white shadow-[0_12px_30px_-24px_rgba(167,139,250,0.95)]"
+                      : "border-transparent text-slate-400 hover:bg-white/[0.06] hover:text-white"
+                  }`}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  <Icon className="h-4 w-4 shrink-0" strokeWidth={2.25} />
+                  <span>{label}</span>
+                </button>
+              );
+            })}
+          </nav>
+
+          <div className="relative shrink-0 lg:hidden" ref={menuRef}>
             <button
               type="button"
               onClick={() => setMenuOpen((open) => !open)}

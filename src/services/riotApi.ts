@@ -52,9 +52,6 @@ export const getAccountByRiotId = async (gameName: string, tagLine: string, rout
   const url = `https://${routing}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
   const key = `riot:account:${routing}:${gameName}:${tagLine}`;
   const account = await fetchWithCache<RiotAccountDto>(url, key);
-  if (import.meta.env.DEV) {
-    console.log("Account response:", account);
-  }
   return account;
 };
 
@@ -62,13 +59,7 @@ export const getSummonerByPuuid = async (puuid: string, region: RiotRegion): Pro
   if (!puuid) throw new Error("Missing puuid. Cannot fetch summoner.");
   const url = `https://${region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${puuid}`;
   const key = `riot:summoner:${region}:${puuid}`;
-  if (import.meta.env.DEV) {
-    console.log("Summoner by PUUID URL:", url);
-  }
   const summoner = await fetchWithCache<RiotSummonerDto>(url, key);
-  if (import.meta.env.DEV) {
-    console.log("Summoner response:", summoner);
-  }
   return summoner;
 };
 

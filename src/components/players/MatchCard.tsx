@@ -1,9 +1,11 @@
-import type { DashboardMatch } from "../../types/dashboard";
+import type { DashboardMatch, PlayerRankedSummary } from "../../types/dashboard";
 import type { DdragonMaps } from "../../hooks/useDdragonData";
 import type { RiotRegion } from "../../types/user";
 import { Clock3 } from "lucide-react";
 import { Badge } from "../ui";
 import { LolPositionIcon } from "./LolPositionIcon";
+import { getTierRankFromAbsoluteLp } from "../../services/rankedQueues";
+import { getRankDisplayTitle, getRankPillToneClasses, getShortRankLabel } from "../../services/rankedVisuals";
 import {
   getChampionIconUrl,
   getItemIconUrl,
@@ -19,9 +21,12 @@ type MatchCardProps = {
   region: RiotRegion;
   currentRiotId: string;
   knownRiotIds: string[];
+  rankByPuuid?: Record<string, PlayerRankedSummary | null>;
 };
 
 const normalizeRiotId = (value: string) => value.trim().toLowerCase();
+const hasRankResult = (rankByPuuid: MatchCardProps["rankByPuuid"], puuid: string) =>
+  Boolean(rankByPuuid && Object.prototype.hasOwnProperty.call(rankByPuuid, puuid));
 
 const POSITION_META = {
   TOP: { label: "Top", icon: "top" },
@@ -36,7 +41,70 @@ const POSITION_META = {
   NONE: { label: "Rol", icon: "none" },
 } as const;
 
-export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds }: MatchCardProps) => {
+type RankPillValue = {
+  tier: string;
+  rank: string;
+  lp?: number;
+  leaguePoints?: number;
+};
+
+const getRankPillLp = (rank: RankPillValue) =>
+  typeof rank.lp === "number" ? rank.lp : rank.leaguePoints;
+
+const RankPill = ({
+  rank,
+  prefix,
+  title,
+}: {
+  rank: RankPillValue | null;
+  prefix?: string;
+  title?: string;
+}) => {
+  const tier = rank?.tier ?? "UNRANKED";
+  const label = getShortRankLabel(tier, rank?.rank);
+  const resolvedTitle = title ?? getRankDisplayTitle(tier, rank?.rank, rank ? getRankPillLp(rank) : null);
+
+  return (
+    <span
+      className={`inline-flex h-4 shrink-0 items-center justify-center gap-0.5 rounded-md border px-1.5 text-[8px] font-black uppercase leading-none tracking-normal ${getRankPillToneClasses(tier)}`}
+      title={resolvedTitle}
+      aria-label={resolvedTitle}
+    >
+      {prefix && <span className="opacity-70">{prefix}</span>}
+      <span>{label}</span>
+    </span>
+  );
+};
+
+const getAverageEnemyRank = (
+  match: DashboardMatch,
+  rankByPuuid: MatchCardProps["rankByPuuid"]
+): RankPillValue | null => {
+  if (!rankByPuuid) return null;
+
+  const allRanksResolved = match.enemyTeam.every((participant) =>
+    hasRankResult(rankByPuuid, participant.puuid)
+  );
+
+  if (!allRanksResolved) return null;
+
+  const rankedEnemies = match.enemyTeam
+    .map((participant) => rankByPuuid[participant.puuid])
+    .filter((rank): rank is PlayerRankedSummary => Boolean(rank));
+
+  if (rankedEnemies.length === 0) return null;
+
+  const averageAbsoluteLp = rankedEnemies.reduce((sum, rank) => sum + rank.absoluteLp, 0) / rankedEnemies.length;
+  const averageRank = getTierRankFromAbsoluteLp(averageAbsoluteLp);
+
+  return {
+    tier: averageRank.tier,
+    rank: averageRank.rank,
+    leaguePoints: averageRank.leaguePoints,
+  };
+};
+
+export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds, rankByPuuid }: MatchCardProps) => {
   const isWin = match.win;
   const tone = match.isRemake
     ? {
@@ -63,8 +131,16 @@ export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds 
   const spellBIcon = spellB?.icon ? getSummonerSpellIconUrl(spellB.icon) : getSpellIconUrl(match.spells[1]);
   const positionKey = (match.position || "NONE").toUpperCase() as keyof typeof POSITION_META;
   const positionMeta = POSITION_META[positionKey] ?? POSITION_META.NONE;
+  const averageEnemyRank = getAverageEnemyRank(match, rankByPuuid);
+  const averageEnemyRankTitle = averageEnemyRank
+    ? `Promedio rivales: ${getRankDisplayTitle(averageEnemyRank.tier, averageEnemyRank.rank)}`
+    : undefined;
 
-  const renderParticipant = (participant: DashboardMatch["allyTeam"][number], muted = false) => {
+  const renderParticipant = (
+    participant: DashboardMatch["allyTeam"][number],
+    options: { muted?: boolean; showRank?: boolean } = {}
+  ) => {
+    const { muted = false, showRank = false } = options;
     const displayName = participant.riotIdGameName && participant.riotIdTagline
       ? `${participant.riotIdGameName}#${participant.riotIdTagline}`
       : participant.summonerName;
@@ -78,12 +154,17 @@ export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds 
         : muted
           ? "text-slate-500"
           : "text-slate-400";
+    const rankResolved = showRank && hasRankResult(rankByPuuid, participant.puuid);
+    const participantRank: PlayerRankedSummary | null = rankResolved && rankByPuuid
+      ? rankByPuuid[participant.puuid] ?? null
+      : null;
 
     const content = (
       <>
         <img src={getChampionIconUrl(participant.championName)} className="h-3.5 w-3.5 rounded-sm object-cover shrink-0 min-[380px]:h-4 min-[380px]:w-4" alt="" />
         <span className="min-w-0 flex-1 truncate sm:hidden">{compactName}</span>
         <span className="hidden min-w-0 flex-1 truncate sm:block">{displayName}</span>
+        {rankResolved && <RankPill rank={participantRank} />}
       </>
     );
 
@@ -109,21 +190,21 @@ export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds 
       <div className={`absolute inset-y-0 left-0 w-1 ${match.isRemake ? "bg-slate-400/30" : isWin ? "bg-emerald-300/70" : "bg-rose-300/70"}`}></div>
 
       <div className="grid grid-cols-1 gap-3 sm:gap-4 min-[980px]:grid-cols-[7rem_minmax(12rem,15rem)_7.5rem_minmax(9rem,11rem)_2.25rem_minmax(12rem,1fr)] min-[980px]:items-center min-[980px]:gap-3 xl:grid-cols-[8rem_minmax(14rem,17rem)_8rem_minmax(10rem,12rem)_2.5rem_minmax(13rem,1fr)] xl:gap-4">
-        <div className="flex min-w-0 items-center justify-between gap-2 text-sm min-[980px]:flex-col min-[980px]:items-start min-[980px]:justify-start">
+        <div className="flex min-w-0 flex-col gap-1.5 text-sm min-[520px]:flex-row min-[520px]:items-center min-[520px]:justify-between min-[980px]:flex-col min-[980px]:items-start min-[980px]:justify-start">
           <div className="min-w-0">
             <h4 className="truncate font-black text-slate-200">{match.queue}</h4>
           </div>
-          <div className="flex shrink-0 items-end gap-2 min-[980px]:flex-col min-[980px]:items-start min-[980px]:gap-1">
+          <div className="flex shrink-0 items-start gap-2 min-[520px]:items-end min-[980px]:flex-col min-[980px]:items-start min-[980px]:gap-1">
             <Badge variant={match.isRemake ? "gray" : isWin ? "green" : "red"}>{resultLabel}</Badge>
             <div
-              className="flex flex-wrap items-center justify-end gap-x-1.5 gap-y-0.5 text-[11px] font-semibold text-slate-500 tabular-nums min-[980px]:justify-start"
+              className="flex flex-wrap items-center justify-start gap-x-1.5 gap-y-0.5 text-[11px] font-semibold text-slate-500 tabular-nums min-[520px]:justify-end min-[980px]:justify-start"
               title={`Hora de inicio: ${startTimeLabel}`}
             >
               <span className="inline-flex items-center gap-1">
                 <Clock3 className="h-3 w-3 text-slate-600" aria-hidden="true" />
                 {startTimeLabel}
               </span>
-              <span className="text-white/15">•</span>
+              <span className="text-white/15">/</span>
               <span>{durationLabel}</span>
             </div>
           </div>
@@ -197,31 +278,32 @@ export const MatchCard = ({ match, ddragon, region, currentRiotId, knownRiotIds 
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 overflow-hidden rounded-lg border border-white/10 bg-black/20 p-2 text-[9px] leading-tight min-[380px]:text-[10px] sm:gap-3 min-[980px]:border-0 min-[980px]:bg-transparent min-[980px]:p-0">
+        <div className="grid grid-cols-2 gap-1.5 overflow-hidden rounded-lg border border-white/10 bg-black/20 p-1.5 text-[9px] leading-tight min-[380px]:gap-2 min-[380px]:p-2 min-[380px]:text-[10px] sm:gap-3 min-[980px]:border-0 min-[980px]:bg-transparent min-[980px]:p-0">
           <div className="min-w-0">
-            <div className="mb-1.5 flex items-center justify-between text-[9px] font-black uppercase text-emerald-200/75 min-[980px]:hidden">
+            <div className="mb-1.5 flex items-center text-[9px] font-black uppercase text-emerald-200/75">
               <span>Aliados</span>
-              <span>{match.allyTeam.length}</span>
             </div>
             <div className="flex min-w-0 flex-col gap-1">
-            {match.allyTeam.map((participant) => (
-              <div key={`${participant.puuid}-ally`} className="min-w-0">
-                {renderParticipant(participant)}
-              </div>
-            ))}
+              {match.allyTeam.map((participant) => (
+                <div key={`${participant.puuid}-ally`} className="min-w-0">
+                  {renderParticipant(participant, { showRank: true })}
+                </div>
+              ))}
             </div>
           </div>
-          <div className="min-w-0 border-l border-white/10 pl-2 sm:pl-3 min-[980px]:border-l-0 min-[980px]:pl-0">
-            <div className="mb-1.5 flex items-center justify-between text-[9px] font-black uppercase text-rose-200/75 min-[980px]:hidden">
+          <div className="min-w-0 border-l border-white/10 pl-1.5 min-[380px]:pl-2 sm:pl-3 min-[980px]:border-l-0 min-[980px]:pl-0">
+            <div className="mb-1.5 flex min-w-0 items-center justify-between gap-1 text-[9px] font-black uppercase text-rose-200/75">
               <span>Rivales</span>
-              <span>{match.enemyTeam.length}</span>
+              <span className="flex shrink-0 items-center gap-1">
+                {averageEnemyRank && <RankPill rank={averageEnemyRank} prefix="Prom" title={averageEnemyRankTitle} />}
+              </span>
             </div>
             <div className="flex min-w-0 flex-col gap-1">
-            {match.enemyTeam.map((participant) => (
-              <div key={`${participant.puuid}-enemy`} className="min-w-0">
-                {renderParticipant(participant, true)}
-              </div>
-            ))}
+              {match.enemyTeam.map((participant) => (
+                <div key={`${participant.puuid}-enemy`} className="min-w-0">
+                  {renderParticipant(participant, { muted: true, showRank: true })}
+                </div>
+              ))}
             </div>
           </div>
         </div>

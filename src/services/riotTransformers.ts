@@ -3,41 +3,15 @@ import type { ChampionSummary, DashboardMatch, DashboardPlayer, PlayerRankedSumm
 import type { RankedQueueType } from "../types/ranked";
 import { formatLongSpanishDate } from "../utils/formatters";
 import {
-  getAbsoluteLp,
   getQueueTypeFromQueueId,
   getRankedQueueLabel,
-  getTierRankKey,
-  isRankedQueueType,
 } from "./rankedQueues";
+import { toRankedSummary } from "./rankedSummaries";
 
 const getQueueLabel = (queueId?: number) => {
   const queueType = getQueueTypeFromQueueId(queueId);
   if (queueType) return getRankedQueueLabel(queueType);
   return "Ranked";
-};
-
-const toRankedSummary = (entry: RiotLeagueEntryDto): PlayerRankedSummary | null => {
-  if (!isRankedQueueType(entry.queueType)) return null;
-
-  const totalGames = entry.wins + entry.losses;
-
-  return {
-    queueType: entry.queueType,
-    queue: getRankedQueueLabel(entry.queueType),
-    tier: entry.tier,
-    rank: entry.rank,
-    lp: entry.leaguePoints,
-    wins: entry.wins,
-    losses: entry.losses,
-    winrate: totalGames > 0 ? Math.round((entry.wins / totalGames) * 100) : 0,
-    totalGames,
-    tierRankKey: getTierRankKey(entry.tier, entry.rank),
-    absoluteLp: getAbsoluteLp(entry.tier, entry.rank, entry.leaguePoints),
-    hotStreak: entry.hotStreak,
-    veteran: entry.veteran,
-    freshBlood: entry.freshBlood,
-    inactive: entry.inactive,
-  };
 };
 
 export const DDRAGON_VERSION = "15.9.1";

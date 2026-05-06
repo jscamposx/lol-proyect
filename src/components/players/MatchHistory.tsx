@@ -1,6 +1,6 @@
 import { ChevronDown, ListPlus } from "lucide-react";
-import { useState } from "react";
-import type { DashboardMatch } from "../../types/dashboard";
+import { useMemo, useState } from "react";
+import type { DashboardMatch, PlayerRankedSummary } from "../../types/dashboard";
 import type { RiotRegion } from "../../types/user";
 import { MatchCard } from "./MatchCard";
 import { useDdragonData } from "../../hooks/useDdragonData";
@@ -10,20 +10,23 @@ export const MatchHistory = ({
   region,
   currentRiotId,
   knownRiotIds,
+  rankByPuuid,
 }: {
   matches: DashboardMatch[];
   region: RiotRegion;
   currentRiotId: string;
   knownRiotIds: string[];
+  rankByPuuid?: Record<string, PlayerRankedSummary | null>;
 }) => {
   const ddragon = useDdragonData();
   const [visibleCount, setVisibleCount] = useState(5);
+
+  const visibleMatches = useMemo(() => matches.slice(0, visibleCount), [matches, visibleCount]);
 
   if (matches.length === 0) {
     return <div className="text-slate-500 text-center py-10 font-medium panel-muted">No hay partidas recientes analizadas.</div>;
   }
 
-  const visibleMatches = matches.slice(0, visibleCount);
   const grouped = visibleMatches.reduce((acc, match) => {
     if (!acc[match.dateLabel]) acc[match.dateLabel] = [];
     acc[match.dateLabel].push(match);
@@ -56,6 +59,7 @@ export const MatchHistory = ({
                   region={region}
                   currentRiotId={currentRiotId}
                   knownRiotIds={knownRiotIds}
+                  rankByPuuid={rankByPuuid}
                 />
               ))}
             </div>

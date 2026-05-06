@@ -1,40 +1,179 @@
-import { Activity, Clock3, Crosshair, Flame, Layers3, Swords } from "lucide-react";
-import type { ChampionSummary, PlayerRecentStats } from "../../types/dashboard";
+import { Activity, CircleEqual, Clock3, Crosshair, Flame, Layers3, Shield, ShieldAlert, Swords, TrendingDown, TrendingUp } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import type { ChampionSummary, DashboardMatch, PlayerRecentStats } from "../../types/dashboard";
+import type { AverageEnemyRank } from "../../hooks/useMatchParticipantRanks";
 import { Badge, Card } from "../ui";
+import { getRankDisplayTitle, getRankPillToneClasses, getShortRankLabel } from "../../services/rankedVisuals";
 import { getChampionIconUrl } from "../../services/riotTransformers";
 import { formatDuration, getWinrateTone } from "../../utils/formatters";
 
 type StatsOverviewProps = {
   stats: PlayerRecentStats;
   championPool: ChampionSummary[];
+  matches: DashboardMatch[];
+  averageEnemyRank?: AverageEnemyRank | null;
 };
 
-const getChampionGames = (champ: ChampionSummary) => champ.wins + champ.losses;
+type RecordSignal = {
+  Icon: LucideIcon;
+  label: string;
+  iconClassName: string;
+  surfaceClassName: string;
+};
 
-const getPercent = (value: number, total: number, minVisible = 0) => {
+function getChampionGames(champ: ChampionSummary) {
+  return champ.wins + champ.losses;
+}
+
+function getPercent(value: number, total: number, minVisible = 0) {
   if (total <= 0 || value <= 0) return "0%";
   const percent = Math.min(Math.max((value / total) * 100, minVisible), 100);
   return `${percent}%`;
-};
+}
 
-const getPoolWinrateTone = (winrate: number) => {
+function getPoolWinrateTone(winrate: number) {
   if (winrate >= 60) return "text-emerald-300";
   if (winrate >= 50) return "text-cyan-200";
   return "text-rose-300";
+}
+
+function getCurrentStreak(matches: DashboardMatch[]) {
+  const playedMatches = [...matches]
+    .filter((match) => !match.isRemake)
+    .sort((a, b) => b.timestamp - a.timestamp);
+  const latestMatch = playedMatches[0];
+
+  if (!latestMatch) return { result: "none" as const, count: 0 };
+
+  const result = latestMatch.win ? "win" : "loss";
+  let count = 0;
+
+  for (const match of playedMatches) {
+    const matchResult = match.win ? "win" : "loss";
+    if (matchResult !== result) break;
+    count++;
+  }
+
+  return { result, count };
+}
+
+function getRecordSignal(stats: PlayerRecentStats, matches: DashboardMatch[]): RecordSignal {
+  const currentStreak = getCurrentStreak(matches);
+  const hasEnoughGames = stats.totalGames >= 6;
+
+  if (currentStreak.result === "win" && currentStreak.count >= 3) {
+    return {
+      Icon: Flame,
+      label: `Racha de ${currentStreak.count} victorias`,
+      iconClassName: "text-amber-200",
+      surfaceClassName: "border-amber-200/25 bg-amber-300/10 shadow-[0_0_28px_rgba(251,191,36,0.12)]",
+    };
+  }
+
+  if (currentStreak.result === "loss" && currentStreak.count >= 3) {
+    return {
+      Icon: currentStreak.count >= 5 ? ShieldAlert : TrendingDown,
+      label: `Racha de ${currentStreak.count} derrotas`,
+      iconClassName: "text-rose-200",
+      surfaceClassName: "border-rose-300/25 bg-rose-400/10 shadow-[0_0_28px_rgba(251,113,133,0.1)]",
+    };
+  }
+
+  if (stats.totalGames === 0) {
+    return {
+      Icon: CircleEqual,
+      label: "Sin partidas recientes",
+      iconClassName: "text-slate-300",
+      surfaceClassName: "border-white/10 bg-white/[0.045]",
+    };
+  }
+
+  if (hasEnoughGames && stats.winrate >= 55) {
+    return {
+      Icon: Flame,
+      label: `${stats.winrate}% de winrate`,
+      iconClassName: "text-amber-200",
+      surfaceClassName: "border-amber-200/25 bg-amber-300/10 shadow-[0_0_28px_rgba(251,191,36,0.12)]",
+    };
+  }
+
+  if (stats.winrate >= 50) {
+    return {
+      Icon: TrendingUp,
+      label: `${stats.winrate}% de winrate`,
+      iconClassName: "text-emerald-200",
+      surfaceClassName: "border-emerald-300/25 bg-emerald-300/10 shadow-[0_0_28px_rgba(52,211,153,0.1)]",
+    };
+  }
+
+  if (hasEnoughGames && stats.winrate <= 40) {
+    return {
+      Icon: ShieldAlert,
+      label: `${stats.winrate}% de winrate`,
+      iconClassName: "text-rose-200",
+      surfaceClassName: "border-rose-300/25 bg-rose-400/10 shadow-[0_0_28px_rgba(251,113,133,0.1)]",
+    };
+  }
+
+  if (stats.winrate <= 47) {
+    return {
+      Icon: TrendingDown,
+      label: `${stats.winrate}% de winrate`,
+      iconClassName: "text-rose-200",
+      surfaceClassName: "border-rose-300/25 bg-rose-400/10",
+    };
+  }
+
+  return {
+    Icon: CircleEqual,
+    label: `${stats.winrate}% de winrate`,
+    iconClassName: "text-slate-300",
+    surfaceClassName: "border-white/10 bg-white/[0.045]",
+  };
 };
 
-export const StatsOverview = ({ stats, championPool }: StatsOverviewProps) => {
+const formatEnemyRankProgress = (averageEnemyRank?: AverageEnemyRank | null) => {
+  if (!averageEnemyRank) return "sin rivales";
+  if (averageEnemyRank.loading) return `${averageEnemyRank.resolvedEnemyCount}/${averageEnemyRank.totalEnemyCount} rivales`;
+  return `${averageEnemyRank.rankedEnemyCount}/${averageEnemyRank.totalEnemyCount} con rank`;
+};
+
+const EnemyRankValue = ({ averageEnemyRank }: { averageEnemyRank?: AverageEnemyRank | null }) => {
+  if (averageEnemyRank?.tier) {
+    const title = `Promedio rivales: ${getRankDisplayTitle(
+      averageEnemyRank.tier,
+      averageEnemyRank.rank,
+      averageEnemyRank.leaguePoints
+    )}`;
+
+    return (
+      <span
+        className={`inline-flex h-8 items-center justify-center rounded-lg border px-2.5 text-base font-black uppercase leading-none sm:h-9 sm:text-lg ${getRankPillToneClasses(averageEnemyRank.tier)}`}
+        title={title}
+      >
+        {getShortRankLabel(averageEnemyRank.tier, averageEnemyRank.rank)}
+      </span>
+    );
+  }
+
+  return averageEnemyRank?.loading ? "..." : "N/D";
+};
+
+export const StatsOverview = ({ stats, championPool, matches, averageEnemyRank }: StatsOverviewProps) => {
   const mostPlayed = championPool[0] ?? null;
   const topPool = championPool.slice(0, 8);
   const winrate = Math.min(Math.max(stats.winrate, 0), 100);
   const winrateAngle = `${winrate * 3.6}deg`;
   const recordTotal = Math.max(stats.wins + stats.losses, 1);
   const winsPercent = `${(stats.wins / recordTotal) * 100}%`;
+  const recordSignal = getRecordSignal(stats, matches);
+  const RecordIcon = recordSignal.Icon;
   const statItems = [
     { label: "Partidas", value: stats.totalGames, detail: `${stats.wins}W / ${stats.losses}L`, Icon: Swords, tone: "text-white" },
     { label: "KDA prom.", value: stats.averageKda.toFixed(2), detail: "KDA", Icon: Crosshair, tone: "text-violet-200" },
     { label: "CS / min", value: stats.averageCsPerMin.toFixed(1), detail: "farm", Icon: Activity, tone: "text-cyan-200" },
     { label: "Duracion", value: formatDuration(stats.averageDuration), detail: "promedio", Icon: Clock3, tone: "text-slate-100" },
+    { label: "Rivales", value: <EnemyRankValue averageEnemyRank={averageEnemyRank} />, detail: formatEnemyRankProgress(averageEnemyRank), Icon: Shield, tone: averageEnemyRank?.loading ? "text-slate-400" : "text-emerald-100" },
   ];
 
   return (
@@ -80,7 +219,13 @@ export const StatsOverview = ({ stats, championPool }: StatsOverviewProps) => {
                       <span className="text-rose-300">{stats.losses}</span>
                     </div>
                   </div>
-                  <Flame className="h-8 w-8 text-amber-200/70" />
+                  <span
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border ${recordSignal.surfaceClassName}`}
+                    title={recordSignal.label}
+                    aria-label={recordSignal.label}
+                  >
+                    <RecordIcon className={`h-6 w-6 ${recordSignal.iconClassName}`} />
+                  </span>
                 </div>
                 <div className="mt-3 h-2 overflow-hidden rounded-full bg-rose-300/20">
                   <div className="h-full rounded-full bg-linear-to-r from-emerald-300 to-cyan-200" style={{ width: winsPercent }}></div>
@@ -93,7 +238,7 @@ export const StatsOverview = ({ stats, championPool }: StatsOverviewProps) => {
         </div>
 
         <div className="p-4 sm:p-6 min-[980px]:p-7">
-          <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:gap-x-5 sm:gap-y-6 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:gap-x-5 sm:gap-y-6 xl:grid-cols-5">
             {statItems.map(({ label, value, detail, Icon, tone }) => (
               <div key={label} className="min-w-0">
                 <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.045] text-slate-300">

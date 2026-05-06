@@ -21,8 +21,8 @@ export default function MatchesWrapper() {
           <div className="hidden xl:block xl:fixed xl:left-[max(0.5rem,calc((100vw-80rem)/2-6.5rem))] xl:top-1/2 xl:z-40 xl:-translate-y-1/2">
             <PlayerTabs users={typedUsers} activeId={activeUser} onChange={setActiveUser} profiles={profiles} placement="side" />
           </div>
-          <div className="fixed inset-x-0 bottom-0 z-50 px-3 pt-2 xl:hidden player-tabs-bottom-safe">
-            <div className="mx-auto flex max-w-md items-center justify-center px-3 py-2.5">
+          <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 px-3 pt-2 xl:hidden player-tabs-bottom-safe">
+            <div className="player-tabs-dock pointer-events-auto mx-auto flex w-fit max-w-[calc(100vw-1.5rem)] items-center justify-center px-3 py-2">
               <PlayerTabs users={typedUsers} activeId={activeUser} onChange={setActiveUser} profiles={profiles} placement="bottom" />
             </div>
           </div>

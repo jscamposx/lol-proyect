@@ -20,19 +20,18 @@ export const PlayerTabs = ({
   const isSide = placement === "side";
   const layoutClass = isSide
     ? "flex flex-col items-center gap-4"
-    : "flex w-full items-center justify-center gap-2 sm:gap-3";
+    : "flex items-center justify-center gap-2 sm:gap-3";
   const buttonSizeClass = isSide
     ? "h-14 w-14 hover:translate-x-1"
     : "h-12 w-12 sm:h-14 sm:w-14";
   const avatarSizeClass = isSide
     ? "h-[52px] w-[52px]"
     : "h-11 w-11 sm:h-[52px] sm:w-[52px]";
-  const tooltipClass = isSide
-    ? "left-[4.45rem] top-1/2 -translate-y-1/2 -translate-x-1 group-hover:translate-x-0.5 group-focus-visible:translate-x-0.5"
-    : "bottom-[calc(100%+0.65rem)] left-1/2 -translate-x-1/2 translate-y-1 group-hover:translate-y-0 group-focus-visible:translate-y-0";
+  const tooltipClass = "left-[4.55rem] top-1/2 -translate-y-1/2 -translate-x-1 group-hover:translate-x-0 group-focus-visible:translate-x-0";
+  const tooltipArrowClass = "-left-1 top-1/2 -translate-y-1/2 border-b border-l";
 
   return (
-    <div className={isSide ? "max-w-full p-0 xl:w-auto" : "w-full"}>
+    <div className={isSide ? "max-w-full p-0 xl:w-auto" : "w-auto"}>
       <div className={layoutClass}>
         {users.map((u) => {
           const isActive = activeId === u.id;
@@ -65,9 +64,29 @@ export const PlayerTabs = ({
                 isActive ? "scale-100 bg-emerald-300 opacity-100" : "scale-75 bg-slate-500 opacity-0 group-hover:opacity-70 group-focus-visible:opacity-70"
               }`}></span>
 
-              <span className={`pointer-events-none absolute z-20 whitespace-nowrap text-xs font-black text-slate-50 opacity-0 [text-shadow:_0_2px_10px_rgb(0_0_0_/_0.95)] transition-all duration-200 group-hover:opacity-100 group-focus-visible:opacity-100 ${tooltipClass}`}>
-                {u.displayName}
-              </span>
+              {isSide && (
+                <span
+                  className={`pointer-events-none absolute z-20 flex min-w-[5.5rem] flex-col items-center rounded-lg border px-3 py-2 opacity-0 shadow-[0_18px_42px_-30px_rgba(0,0,0,0.95)] backdrop-blur-xl transition-all duration-200 group-hover:opacity-100 group-focus-visible:opacity-100 ${tooltipClass} ${
+                    isActive
+                      ? "border-cyan-200/20 bg-[#081522]/96"
+                      : "border-white/10 bg-[#090511]/94"
+                  }`}
+                >
+                  <span className="max-w-[8.5rem] truncate text-[11px] font-black leading-none text-white">
+                    {u.displayName}
+                  </span>
+                  <span className={`mt-1 text-[9px] font-bold leading-none ${
+                    isActive ? "text-cyan-100/80" : "text-slate-400"
+                  }`}>
+                    #{u.tagLine}
+                  </span>
+                  <span className={`absolute h-2 w-2 rotate-45 ${tooltipArrowClass} ${
+                    isActive
+                      ? "border-cyan-200/20 bg-[#081522]"
+                      : "border-white/10 bg-[#090511]"
+                  }`}></span>
+                </span>
+              )}
 
               <span className={`pointer-events-none absolute rounded-full transition-opacity ${
                 isSide

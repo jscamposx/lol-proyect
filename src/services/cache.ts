@@ -33,7 +33,7 @@ export function setCachedData<T>(key: string, data: T, ttlMs: number = RIOT_CACH
     };
     localStorage.setItem(key, JSON.stringify(item));
   } catch (e) {
-    console.warn("Error setting cache", e);
+    // ignore
   }
 }
 
