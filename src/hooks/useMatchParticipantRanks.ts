@@ -33,8 +33,12 @@ const fetchParticipantRankChunk = async (puuids: string[], region: RiotRegion) =
   const results: ParticipantRankMap = {};
 
   const entries = await Promise.all(
-    puuids.map(async (puuid) => {
+    puuids.map(async (puuid, idx) => {
       try {
+        // Pausa escalonada artificial para evitar Rate Limit rápido a /league/v4/entries
+        if (idx > 0) {
+          await new Promise((resolve) => setTimeout(resolve, idx * 100)); // 100ms separación
+        }
         const rankedEntries = await getRankedEntriesByPuuid(puuid, region);
         return [puuid, getSoloDuoRankedSummary(rankedEntries)] as const;
       } catch (error) {
@@ -128,6 +132,10 @@ export const useMatchParticipantRanks = (matches: DashboardMatch[], region: Riot
   }, [region]);
 
   useEffect(() => {
+    // TODO: Desactivado temporalmente para no consumir la API.
+    // Retirar este return cuando se vaya a optimizar.
+    return;
+
     const missingPuuids = participantPuuids.filter((puuid) =>
       !hasRankResult(rankByPuuid, puuid) && !inFlightRankPuuids.current.has(puuid)
     );
@@ -150,7 +158,8 @@ export const useMatchParticipantRanks = (matches: DashboardMatch[], region: Riot
             ...results,
           },
         }));
-      }
+        // Pausa entre chunks para dar un pequeño respiro a la API
+        await new Promise((resolve) => setTimeout(resolve, 800));      }
     })()
       .finally(() => {
         missingPuuids.forEach((puuid) => inFlightRankPuuids.current.delete(puuid));
